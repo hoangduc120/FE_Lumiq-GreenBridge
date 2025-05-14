@@ -7,11 +7,21 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "format": "prettier --write .",
+    "preview": "vite preview",
+    "start": "npm run format && vite"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.6",
+    "antd": "^5.25.1",
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.9.0",
+    "dotenv": "^16.5.0",
+    "postcss": "^8.5.3",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^6.30.0",
+    "tailwindcss": "^4.1.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
