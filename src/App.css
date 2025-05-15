@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+p {
+    margin: 0;
+}
+
+.undefined.invalid {
+    margin-bottom: 12px!important;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
