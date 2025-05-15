@@ -1,11 +1,12 @@
-import React from 'react'
-
-const Homepage = () => {
+import HomeHero from './HomeHero';
+import Header from './Header';
+const Home = () => {
   return (
-    <div className='text-red-500'>
-      Hello
+    <div>
+      <Header />
+      <HomeHero />
     </div>
-  )
-}
+  );
+};
 
-export default Homepage
+export default Home;
