@@ -1,9 +1,7 @@
-import HomeHero from './HomeHero';
-import Header from './Header';
+import HomeHero from "./HomeHero";
 const Home = () => {
   return (
     <div>
-      <Header />
       <HomeHero />
     </div>
   );
