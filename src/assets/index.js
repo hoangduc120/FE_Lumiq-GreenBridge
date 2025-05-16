@@ -6,5 +6,5 @@ export { default as MiniBonsai } from './img/MiniBonsai.png';
 export { default as Discover } from './img/Discover.png';
 export { default as DiscoverSmall } from './img/DiscoverSmall.png';
 export { default as CountDown } from './img/Countdown.png';
-
+export { default as FooterLogo } from "./img/footerLogo.png";
 
