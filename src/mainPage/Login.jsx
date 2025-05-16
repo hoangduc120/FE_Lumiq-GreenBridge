@@ -12,7 +12,6 @@ import { LoginBg, Logo } from "../assets";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { loginEmail, loginGoogle, register } from "../api/authApi";
-import axios from "axios";
 
 const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -20,7 +19,6 @@ const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Redirect if user is already logged in
   useEffect(() => {
     const user = localStorage.getItem("user");
     if (user) {

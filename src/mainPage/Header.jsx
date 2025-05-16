@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { getUserById } from "../api/userApi";
 
 const Header = () => {
   const [user, setUser] = useState(null);
   const location = useLocation();
 
+  const storeUser = JSON.parse(localStorage.getItem("user"));
+
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+   const getUser = async () => {
+    try {
+      const response = await getUserById(storeUser.id);
+      setUser(response)
+    } catch (error) {
+      console.error('Error fetching user:', error);
+    }
+  };
+  getUser();
   }, []);
+
 
   const isActive = (path) => location.pathname === path;
 

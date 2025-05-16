@@ -3,4 +3,8 @@ export { default as Logo } from './img/logo.png';
 export { default as Leaf } from './img/leaf.png';
 export { default as Bonsai } from './img/Bonsai.png';
 export { default as MiniBonsai } from './img/MiniBonsai.png';
+export { default as Discover } from './img/Discover.png';
+export { default as DiscoverSmall } from './img/DiscoverSmall.png';
+export { default as CountDown } from './img/Countdown.png';
+
 

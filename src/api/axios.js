@@ -16,7 +16,7 @@ instance.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        const { data } = await instance.post('/refresh-token', {});
+        const { data } = await instance.post('/auth/refresh-token', {});
         return instance(originalRequest);
       } catch (refreshError) {
         console.error('Refresh token failed:', refreshError);
