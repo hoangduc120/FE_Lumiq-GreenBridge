@@ -1,9 +1,7 @@
 import React from "react";
 import { FaLeaf, FaSeedling, FaUsers } from "react-icons/fa";
 import { MdSmartToy } from "react-icons/md";
-import Pagination from "../components/pagination";
-import ProductFilter from "../components/ProductFilter";
-import DetailProduct from "./DetailProduct";
+
 
 function AboutUs() {
   return (

@@ -5,7 +5,7 @@ import HomePage from "../mainPage/homePage";
 import LoginPage from "../mainPage/Login";
 import AboutUs from "../mainPage/AboutUs";
 import ViewAllProduct from "../mainPage/ViewAllProduct";
-import DetailProduct from "../mainPage/DetailProduct";
+import ProductDetail from "../mainPage/ProductDetail";
 import RatingAndReview from "../mainPage/RatingAndReview";
 import Cart from "../mainPage/Cart";
 
@@ -16,7 +16,7 @@ export default function AppRoutes() {
         <Route index element={<HomePage />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/viewall" element={<ViewAllProduct />} />
-        <Route path="/product/:id" element={<DetailProduct />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/rating-review" element={<RatingAndReview />} />
         <Route path="/cart" element={<Cart />} />
       </Route>
