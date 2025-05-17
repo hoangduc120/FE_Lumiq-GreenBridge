@@ -4,6 +4,9 @@ import Layout from "../components/layout";
 import HomePage from "../mainPage/homePage";
 import LoginPage from "../mainPage/Login";
 import AboutUs from "../mainPage/AboutUs";
+import ViewAllProduct from "../mainPage/ViewAllProduct";
+import DetailProduct from "../mainPage/DetailProduct";
+import RatingAndReview from "../mainPage/RatingAndReview";
 
 export default function AppRoutes() {
   return (
@@ -11,6 +14,9 @@ export default function AppRoutes() {
       <Route path="/" element={<Layout />}>
         <Route index element={<HomePage />} />
         <Route path="/about" element={<AboutUs />} />
+        <Route path="/viewall" element={<ViewAllProduct />} />
+        <Route path="/product/:id" element={<DetailProduct />} />
+        <Route path="/rating-review" element={<RatingAndReview />} />
       </Route>
       <Route path="/login" element={<LoginPage />} />
     </Routes>

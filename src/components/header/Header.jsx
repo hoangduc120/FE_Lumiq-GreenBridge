@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { getUserById } from "../../api/userApi";
+import { FaShoppingCart } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+import { useSelector } from 'react-redux';
 
 const Header = () => {
   const [user, setUser] = useState(null);
   const location = useLocation();
+  const totalQuantity = useSelector(state => state.cart.totalQuantity);
 
   const storeUser = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-   const getUser = async () => {
-    try {
-      const response = await getUserById(storeUser.id);
-      setUser(response)
-    } catch (error) {
-      console.error('Error fetching user:', error);
-    }
-  };
-  getUser();
+    const getUser = async () => {
+      try {
+        const response = await getUserById(storeUser.id);
+        setUser(response)
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+    getUser();
   }, []);
 
 
@@ -114,31 +119,28 @@ const Header = () => {
         <nav className="hidden md:flex items-center space-x-6">
           <Link
             to="/"
-            className={`px-3 py-1 rounded-full font-medium ${
-              isActive("/")
-                ? "bg-green-500 text-white"
-                : "text-black hover:text-green-600"
-            }`}
+            className={`px-3 py-1 rounded-full font-medium ${isActive("/")
+              ? "bg-green-500 text-white"
+              : "text-black hover:text-green-600"
+              }`}
           >
             Home
           </Link>
           <Link
             to="/sell"
-            className={`px-3 py-1 rounded-full font-medium ${
-              isActive("/sell")
-                ? "bg-green-500 text-white"
-                : "text-black hover:text-green-600"
-            }`}
+            className={`px-3 py-1 rounded-full font-medium ${isActive("/sell")
+              ? "bg-green-500 text-white"
+              : "text-black hover:text-green-600"
+              }`}
           >
             Sell
           </Link>
           <Link
             to="/about"
-            className={`px-3 py-1 rounded-full font-medium ${
-              isActive("/about")
-                ? "bg-green-500 text-white"
-                : "text-black hover:text-green-600"
-            }`}
+            className={`px-3 py-1 rounded-full font-medium ${isActive("/about")
+              ? "bg-green-500 text-white"
+              : "text-black hover:text-green-600"
+              }`}
           >
             About us
           </Link>
@@ -151,23 +153,23 @@ const Header = () => {
               placeholder="Search for products..."
               className="rounded-full py-2 px-4 bg-[#f7f7f7] border border-gray-200 focus:outline-none w-48 sm:w-64"
             />
-            <span className="absolute right-4 top-2.5 text-gray-400">🔍</span>
+            <span className="absolute right-4 top-2.5 text-gray-400"><FaSearch /></span>
           </div>
 
           <Link
             to="/profile"
             className="text-black text-2xl hover:text-green-600 transition"
           >
-            👤
+            <FaUser />
           </Link>
 
           <Link
             to="/cart"
             className="relative text-black text-2xl hover:text-green-600 transition"
           >
-            🛒
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
-              2
+            <FaShoppingCart />
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+              {totalQuantity}
             </span>
           </Link>
         </div>
