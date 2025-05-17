@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { cartActions } from '../redux/slices/cartSlice';
 import { Empty } from 'antd';
-
+import { IoArrowBackOutline } from "react-icons/io5";
+import { GrFormNext } from "react-icons/gr";
+import { FaTrashAlt } from "react-icons/fa";
+import { FiMinus } from "react-icons/fi";
+import { FiPlus } from "react-icons/fi";
 const Cart = () => {
     const dispatch = useDispatch();
     const cartItems = useSelector(state => state.cart.items);
@@ -30,10 +34,6 @@ const Cart = () => {
         dispatch(cartActions.removeItemCompletely(id));
     };
 
-    // Handle voucher code
-    const handleVoucherSubmit = () => {
-        alert(`Voucher code applied!`);
-    };
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -42,16 +42,12 @@ const Cart = () => {
                 <Link to="/" className="hover:text-gray-900">
                     Home
                 </Link>
-                {/* ChevronRight SVG */}
-                <svg className="mx-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                </svg>
+                {/* ChevronRight */}
+                <GrFormNext />
                 <Link to="/viewall" className="hover:text-gray-900">
                     Category
                 </Link>
-                <svg className="mx-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                </svg>
+                <GrFormNext />
                 <span>Cart</span>
             </div>
 
@@ -79,9 +75,7 @@ const Cart = () => {
                                         onClick={() => removeItem(item.id)}
                                     >
                                         {/* X SVG */}
-                                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
+                                        <FaTrashAlt />
                                     </button>
 
                                     {/* Product */}
@@ -112,10 +106,8 @@ const Cart = () => {
                                                 className="flex h-8 w-8 items-center justify-center rounded-l border border-r-0 border-gray-300 bg-gray-100 text-gray-600 hover:bg-gray-200"
                                                 onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                             >
-                                                {/* Minus SVG */}
-                                                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
-                                                </svg>
+                                                {/* Minus */}
+                                                <FiMinus />
                                             </button>
                                             <div className="flex h-8 w-10 items-center justify-center border border-gray-300 bg-white text-center text-sm">
                                                 {item.quantity}
@@ -124,10 +116,8 @@ const Cart = () => {
                                                 className="flex h-8 w-8 items-center justify-center rounded-r border border-l-0 border-gray-300 bg-gray-100 text-gray-600 hover:bg-gray-200"
                                                 onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                             >
-                                                {/* Plus SVG */}
-                                                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                                                </svg>
+                                                {/* Plus */}
+                                                <FiPlus />
                                             </button>
                                         </div>
                                     </div>
@@ -155,10 +145,8 @@ const Cart = () => {
                     {cartItems.length > 0 && (
                         <div className="mt-8">
                             <Link to="/viewall">
-                                <button className="px-4 py-2 text-sm font-medium text-green-600 hover:text-green-800 flex items-center">
-                                    <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                                    </svg>
+                                <button className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center gap-2">
+                                    <IoArrowBackOutline />
                                     Tiếp tục mua sắm
                                 </button>
                             </Link>

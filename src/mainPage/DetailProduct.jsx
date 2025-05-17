@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom';
-import { FiHeart, FiTruck, FiClock } from 'react-icons/fi';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { FiHeart, FiTruck, FiClock, FiShoppingCart } from 'react-icons/fi';
 import CustomerReview from '../components/CustomerReview';
-
+import { useDispatch } from 'react-redux';
+import { cartActions } from '../redux/slices/cartSlice';
+import { message } from 'antd';
 
 const images = [
     "/placeholder.svg?height=400&width=400",
@@ -29,7 +31,8 @@ const productData = {
     delivery: "Estimated between Thu, Jan 4 and Fri, Jan 12",
     about: [
         "The Banyan Tree for Desk is a great choice to add a touch of nature and freshness to your workspace."
-    ]
+    ],
+    image: "/placeholder.svg?height=400&width=400"
 };
 
 const DetailProduct = () => {
@@ -37,6 +40,8 @@ const DetailProduct = () => {
     const [product, setProduct] = useState(productData);
     const [isFavorite, setIsFavorite] = useState(false);
     const { id } = useParams();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     useEffect(() => {
         console.log(`Fetching product with id: ${id}`);
@@ -44,6 +49,32 @@ const DetailProduct = () => {
 
     const toggleFavorite = () => {
         setIsFavorite(!isFavorite);
+    };
+
+    const handleAddToCart = () => {
+        dispatch(
+            cartActions.addToCart({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                image: product.image || images[0]
+            })
+        );
+        message.success(`${product.name} đã được thêm vào giỏ hàng!`);
+    };
+
+    const handleBuyNow = () => {
+        // Thêm sản phẩm vào giỏ hàng
+        dispatch(
+            cartActions.addToCart({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                image: product.image || images[0]
+            })
+        );
+        // Chuyển đến trang giỏ hàng
+        navigate('/cart');
     };
 
     return (
@@ -106,8 +137,18 @@ const DetailProduct = () => {
 
                         {/* Nút mua hàng và yêu thích */}
                         <div className="flex items-center gap-3 mt-6">
-                            <button className="flex-grow bg-green-500 text-white py-3 rounded-md font-medium hover:bg-green-600 transition">
+                            <button
+                                onClick={handleBuyNow}
+                                className="px-5 py-3 bg-green-500 text-white rounded-md font-medium hover:bg-green-600 transition cursor-pointer"
+                            >
                                 Buy now
+                            </button>
+                            <button
+                                onClick={handleAddToCart}
+                                className="px-4 py-3 flex items-center gap-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition cursor-pointer"
+                            >
+                                <FiShoppingCart />
+                                Add to cart
                             </button>
                             <button
                                 className={`p-3 rounded-md border ${isFavorite ? 'text-red-500' : 'text-gray-400'} hover:bg-gray-50`}

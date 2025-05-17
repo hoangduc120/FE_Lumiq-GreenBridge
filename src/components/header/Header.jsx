@@ -9,7 +9,8 @@ import { useSelector } from 'react-redux';
 const Header = () => {
   const [user, setUser] = useState(null);
   const location = useLocation();
-  const totalQuantity = useSelector(state => state.cart.totalQuantity);
+  const cartItems = useSelector(state => state.cart.items);
+  const totalItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   const storeUser = JSON.parse(localStorage.getItem("user"));
 
@@ -169,7 +170,7 @@ const Header = () => {
           >
             <FaShoppingCart />
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-              {totalQuantity}
+              {totalItemsCount}
             </span>
           </Link>
         </div>

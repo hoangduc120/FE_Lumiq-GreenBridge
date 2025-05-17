@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const CustomerReview = () => {
     return (
-        <div className="rounded border p-6">
+        <div className="rounded border p-6 relative">
             <div className="mb-4 flex items-center">
                 <div className="mr-4 h-12 w-12 overflow-hidden rounded-full">
                     <img
@@ -23,16 +23,18 @@ const CustomerReview = () => {
                     </div>
                 </div>
             </div>
-            <p className="text-gray-700">
+            <p className="text-gray-700 mb-10">
                 I'm really happy with my Banyan Tree for Desk!
-                <div className="mt-4">
-                    <Link to="/rating-review">
-                        <button className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 cursor-pointer">
-                            Contact
-                        </button>
-                    </Link>
-                </div>
             </p>
+
+            {/* Contact button positioned at bottom right */}
+            <div className="absolute bottom-4 right-4">
+                <Link to="/rating-review">
+                    <button className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 cursor-pointer">
+                        Contact
+                    </button>
+                </Link>
+            </div>
         </div>
     );
 }

@@ -22,7 +22,7 @@ const HomeDiscover = () => {
               We tried generating Bonsai designs and were amazed with some of the outcomes!
             </p>
             <Link
-              to="/explore"
+              to="/viewall"
               className="inline-block border border-white text-white px-6 py-2 text-sm hover:bg-white hover:text-[#384539] transition"
             >
               EXPLORE
