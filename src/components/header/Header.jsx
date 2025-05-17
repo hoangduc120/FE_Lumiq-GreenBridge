@@ -12,19 +12,21 @@ const Header = () => {
   const cartItems = useSelector(state => state.cart.items);
   const totalItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-  const storeUser = JSON.parse(localStorage.getItem("user"));
+  const storeUser = localStorage.getItem("user") 
 
   useEffect(() => {
     const getUser = async () => {
       try {
-        const response = await getUserById(storeUser.id);
-        setUser(response)
+        if (storeUser && storeUser.id) {
+          const response = await getUserById(storeUser.id);
+          setUser(response);
+        }
       } catch (error) {
         console.error('Error fetching user:', error);
       }
     };
     getUser();
-  }, []);
+  }, [storeUser]);
 
 
   const isActive = (path) => location.pathname === path;

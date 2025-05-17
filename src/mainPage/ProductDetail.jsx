@@ -17,7 +17,7 @@ const productData = {
     id: 1,
     name: "Banyan tree for desk",
     price: 20,
-    seller: "Seller name",
+    author: "Seller name",
     countdownTime: "44 20h (Sat, 02:39 PM)",
     description: "PlayStation 5",
     features: ["Chất liệu gốm sứ", "Không thấm nước", "Thiết kế hiện đại", "Nhiều kích thước"],
@@ -35,7 +35,7 @@ const productData = {
     image: "/placeholder.svg?height=400&width=400"
 };
 
-const DetailProduct = () => {
+const ProductDetail = () => {
     const [selectedImage, setSelectedImage] = useState(0);
     const [product, setProduct] = useState(productData);
     const [isFavorite, setIsFavorite] = useState(false);
@@ -195,4 +195,4 @@ const DetailProduct = () => {
     );
 }
 
-export default DetailProduct
+export default ProductDetail
