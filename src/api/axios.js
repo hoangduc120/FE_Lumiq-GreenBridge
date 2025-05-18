@@ -7,6 +7,10 @@ axios.defaults.withCredentials = true;
 const instance = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
+  timeout: 10000, // Timeout 10s
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
 // Lưu tất cả các request đang chờ xử lý khi refresh token
@@ -25,6 +29,21 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+// Request interceptor để thêm token vào header
+instance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor
 instance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -67,6 +86,8 @@ instance.interceptors.response.use(
 
         // Xóa thông tin user trong localStorage
         localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
 
         // Đặt lại flag
         isRefreshing = false;
