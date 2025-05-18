@@ -7,6 +7,10 @@ axios.defaults.withCredentials = true;
 const instance = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
+  timeout: 10000, // Timeout 10s
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
 // Lưu tất cả các request đang chờ xử lý khi refresh token
@@ -25,9 +29,37 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+// Request interceptor để thêm token vào header
+instance.interceptors.request.use(
+  (config) => {
+    console.log('API Request:', config.method.toUpperCase(), config.url, config.data);
+
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    console.error('API Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor
 instance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('API Response:', response.status, response.data);
+    return response;
+  },
   async (error) => {
+    console.error('API Response Error:',
+      error.response ? {
+        status: error.response.status,
+        data: error.response.data
+      } : error.message
+    );
+
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -67,6 +99,8 @@ instance.interceptors.response.use(
 
         // Xóa thông tin user trong localStorage
         localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
 
         // Đặt lại flag
         isRefreshing = false;
@@ -79,6 +113,16 @@ instance.interceptors.response.use(
 
         return Promise.reject(refreshError);
       }
+    }
+
+    // Hiển thị thông báo lỗi dễ hiểu cho người dùng
+    if (error.response) {
+      const errorMessage = error.response.data?.message || 'Đã xảy ra lỗi khi gọi API';
+      toast.error(errorMessage);
+    } else if (error.request) {
+      toast.error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.');
+    } else {
+      toast.error('Đã xảy ra lỗi khi thiết lập yêu cầu.');
     }
 
     return Promise.reject(error);

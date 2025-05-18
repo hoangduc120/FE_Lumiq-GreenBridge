@@ -1,19 +1,74 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { cartActions } from '../redux/slices/cartSlice';
-import { Empty } from 'antd';
+import { createMomoPaymentThunk, resetPaymentState } from '../redux/slices/momoSlice';
+import { Empty, Modal, Spin } from 'antd';
 import { IoArrowBackOutline } from "react-icons/io5";
 import { GrFormNext } from "react-icons/gr";
 import { FaTrashAlt } from "react-icons/fa";
 import { FiMinus } from "react-icons/fi";
 import { FiPlus } from "react-icons/fi";
+import { toast } from 'react-toastify';
+
 const Cart = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Lấy state từ Redux
     const cartItems = useSelector(state => state.cart.items);
     const totalAmount = useSelector(state => state.cart.totalAmount);
+    const { paymentLoading, paymentError, paymentUrl, paymentData } = useSelector(state => state.momo);
+
     const shippingFee = 20;
     const total = totalAmount + shippingFee;
+
+    // Kiểm tra URL param khi trở về từ MoMo
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const resultCode = params.get('resultCode');
+        const orderId = params.get('orderId');
+
+        if (resultCode && orderId) {
+            if (resultCode === '0') {
+                toast.success('Thanh toán thành công! Cảm ơn bạn đã mua hàng.');
+                // Xóa giỏ hàng sau khi thanh toán thành công
+                dispatch(cartActions.clearCart());
+            } else {
+                toast.error('Thanh toán thất bại. Vui lòng thử lại sau.');
+            }
+            // Xóa query params khỏi URL
+            navigate(location.pathname, { replace: true });
+        }
+
+        // Cleanup function
+        return () => {
+            dispatch(resetPaymentState());
+        };
+    }, [location, dispatch, navigate]);
+
+    // Effect xử lý khi có paymentUrl
+    useEffect(() => {
+        console.log('Payment URL state changed:', paymentUrl);
+        if (paymentUrl) {
+            console.log('Redirecting to payment URL:', paymentUrl);
+            window.location.href = paymentUrl;
+        }
+    }, [paymentUrl]);
+
+    // Effect xử lý khi có paymentData
+    useEffect(() => {
+        console.log('Payment data changed:', paymentData);
+    }, [paymentData]);
+
+    // Effect xử lý khi có lỗi thanh toán
+    useEffect(() => {
+        if (paymentError) {
+            console.error('Payment error:', paymentError);
+            toast.error(paymentError);
+        }
+    }, [paymentError]);
 
     // Handle quantity change
     const updateQuantity = (id, newQuantity) => {
@@ -34,6 +89,30 @@ const Cart = () => {
         dispatch(cartActions.removeItemCompletely(id));
     };
 
+    // Xử lý thanh toán bằng MoMo
+    const handleMomoPayment = () => {
+        console.log('MoMo payment button clicked');
+
+        // Kiểm tra xem có sản phẩm trong giỏ hàng không
+        if (cartItems.length === 0) {
+            console.log('Cart is empty, showing error toast');
+            toast.error("Giỏ hàng của bạn đang trống");
+            return;
+        }
+
+        // Tạo dữ liệu cho API thanh toán
+        const paymentData = {
+            amount: total,
+            orderId: `ORDER_${Date.now()}`
+        };
+
+        console.log('Dispatching MoMo payment with data:', paymentData);
+
+        // Gọi action Redux để tạo thanh toán MoMo
+        dispatch(createMomoPaymentThunk(paymentData));
+    };
+
+    console.log('Cart render - paymentLoading:', paymentLoading, 'paymentUrl:', paymentUrl);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -50,6 +129,13 @@ const Cart = () => {
                 <GrFormNext />
                 <span>Cart</span>
             </div>
+
+            {/* Hiển thị lỗi nếu có */}
+            {paymentError && (
+                <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    {paymentError}
+                </div>
+            )}
 
             <div className="lg:flex lg:gap-8">
                 <div className="mb-8 lg:mb-0 lg:flex-1">
@@ -178,8 +264,12 @@ const Cart = () => {
                                     </div>
                                 </div>
 
-                                <button className="mt-4 w-full bg-green-500 text-white py-2 rounded hover:bg-green-600">
-                                    Check out
+                                <button
+                                    className="mt-4 w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 flex items-center justify-center"
+                                    onClick={handleMomoPayment}
+                                    disabled={paymentLoading}
+                                >
+                                    {paymentLoading ? <Spin size="small" /> : 'Thanh toán bằng MoMo'}
                                 </button>
                             </div>
                         </div>
