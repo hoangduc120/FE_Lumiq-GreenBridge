@@ -2,6 +2,7 @@ import React from "react";
 import { FaLeaf, FaSeedling, FaUsers } from "react-icons/fa";
 import { MdSmartToy } from "react-icons/md";
 
+
 function AboutUs() {
   return (
     <div className="min-h-screen p-8 md:p-16 text-white bg-gradient-to-br from-[#b6e67c] to-[#5fb537]">
@@ -69,6 +70,7 @@ function AboutUs() {
           <FaLeaf className="text-4xl mx-2" />
         </div>
       </div>
+
     </div>
   );
 }
