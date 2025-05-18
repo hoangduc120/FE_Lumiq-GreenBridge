@@ -7,19 +7,15 @@ export const createMomoPaymentThunk = createAsyncThunk(
     'momo/createPayment',
     async (paymentData, { rejectWithValue }) => {
         try {
-            console.log('momoSlice: Creating payment with data:', paymentData);
             const response = await createMomoPayment(paymentData);
-            console.log('momoSlice: Payment response:', response);
 
             // Kiểm tra cấu trúc response
             if (!response || !response.success) {
-                console.error('momoSlice: Invalid response structure:', response);
                 return rejectWithValue('Không nhận được phản hồi thành công từ máy chủ');
             }
 
             return response;
         } catch (error) {
-            console.error('momoSlice: Payment error:', error);
             const errorMessage = error.response?.data?.message || 'Lỗi khi tạo thanh toán';
             toast.error(errorMessage);
             return rejectWithValue(errorMessage);
@@ -32,18 +28,14 @@ export const verifyMomoPaymentThunk = createAsyncThunk(
     'momo/verifyPayment',
     async (verifyData, { rejectWithValue }) => {
         try {
-            console.log('momoSlice: Verifying payment with data:', verifyData);
             const response = await verifyMomoPayment(verifyData);
-            console.log('momoSlice: Verify response:', response);
 
             if (!response || !response.success) {
-                console.error('momoSlice: Invalid verify response structure:', response);
                 return rejectWithValue('Không nhận được phản hồi thành công từ máy chủ');
             }
 
             return response;
         } catch (error) {
-            console.error('momoSlice: Verify error:', error);
             const errorMessage = error.response?.data?.message || 'Lỗi khi xác thực thanh toán';
             toast.error(errorMessage);
             return rejectWithValue(errorMessage);
@@ -84,19 +76,16 @@ const momoSlice = createSlice({
         builder
             // Xử lý trạng thái tạo thanh toán
             .addCase(createMomoPaymentThunk.pending, (state) => {
-                console.log('momoSlice: Payment pending');
                 state.paymentLoading = true;
                 state.paymentError = null;
             })
             .addCase(createMomoPaymentThunk.fulfilled, (state, action) => {
-                console.log('momoSlice: Payment fulfilled with data:', action.payload);
                 state.paymentLoading = false;
                 state.paymentData = action.payload;
 
                 // Kiểm tra và gán payUrl
                 if (action.payload?.data?.payUrl) {
                     state.paymentUrl = action.payload.data.payUrl;
-                    console.log('momoSlice: Setting payment URL:', state.paymentUrl);
                 } else {
                     console.warn('momoSlice: No payUrl found in response');
                     toast.error('Không tìm thấy URL thanh toán');
@@ -105,7 +94,6 @@ const momoSlice = createSlice({
                 state.paymentError = null;
             })
             .addCase(createMomoPaymentThunk.rejected, (state, action) => {
-                console.error('momoSlice: Payment rejected with error:', action.payload);
                 state.paymentLoading = false;
                 state.paymentError = action.payload || 'Lỗi không xác định';
                 toast.error(state.paymentError);
@@ -113,12 +101,10 @@ const momoSlice = createSlice({
 
             // Xử lý trạng thái xác thực thanh toán
             .addCase(verifyMomoPaymentThunk.pending, (state) => {
-                console.log('momoSlice: Verify pending');
                 state.verifyLoading = true;
                 state.verifyError = null;
             })
             .addCase(verifyMomoPaymentThunk.fulfilled, (state, action) => {
-                console.log('momoSlice: Verify fulfilled with data:', action.payload);
                 state.verifyLoading = false;
                 state.verifyData = action.payload;
                 state.paymentStatus = action.payload.success ? 'success' : 'failed';
