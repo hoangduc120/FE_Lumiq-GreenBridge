@@ -2,80 +2,89 @@ import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FiHeart, FiTruck, FiClock, FiShoppingCart } from 'react-icons/fi';
 import CustomerReview from '../components/CustomerReview';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { cartActions } from '../redux/slices/cartSlice';
+import { fetProductById, resetProductDetail } from '../redux/slices/productDetailSlice';
 import { message } from 'antd';
-
-const images = [
-    "/placeholder.svg?height=400&width=400",
-    "/placeholder.svg?height=100&width=100",
-    "/placeholder.svg?height=100&width=100",
-    "/placeholder.svg?height=100&width=100",
-];
-
-const productData = {
-    id: 1,
-    name: "Banyan tree for desk",
-    price: 20,
-    author: "Seller name",
-    countdownTime: "44 20h (Sat, 02:39 PM)",
-    description: "PlayStation 5",
-    features: ["Chất liệu gốm sứ", "Không thấm nước", "Thiết kế hiện đại", "Nhiều kích thước"],
-    specifications: {
-        "Kích thước": "15 x 20 cm",
-        "Chất liệu": "Gốm sứ cao cấp",
-        "Xuất xứ": "Việt Nam",
-        "Bảo hành": "12 tháng"
-    },
-    shipping: "Rs. 100 per order",
-    delivery: "Estimated between Thu, Jan 4 and Fri, Jan 12",
-    about: [
-        "The Banyan Tree for Desk is a great choice to add a touch of nature and freshness to your workspace."
-    ],
-    image: "/placeholder.svg?height=400&width=400"
-};
 
 const ProductDetail = () => {
     const [selectedImage, setSelectedImage] = useState(0);
-    const [product, setProduct] = useState(productData);
     const [isFavorite, setIsFavorite] = useState(false);
     const { id } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const { product, status, error } = useSelector((state) => state.productDetail)
+
+    // Mảng hình ảnh mặc định nếu không có từ API
+    const images = product?.images || [product?.image || '/placeholder.svg'];
+
     useEffect(() => {
-        console.log(`Fetching product with id: ${id}`);
-    }, [id]);
+        dispatch(fetProductById(id))
+        return () => {
+            dispatch(resetProductDetail())
+        }
+    }, [dispatch, id]);
 
     const toggleFavorite = () => {
         setIsFavorite(!isFavorite);
     };
 
     const handleAddToCart = () => {
-        dispatch(
-            cartActions.addToCart({
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                image: product.image || images[0]
-            })
-        );
-        message.success(`${product.name} đã được thêm vào giỏ hàng!`);
+        if (product) {
+            dispatch(
+                cartActions.addToCart({
+                    id: product._id,
+                    name: product.productName,
+                    price: product.price,
+                    image: product.image || images[0]
+                })
+            )
+            message.success(`${product.productName} added to cart successfully!`);
+        }
     };
 
     const handleBuyNow = () => {
-        // Thêm sản phẩm vào giỏ hàng
-        dispatch(
-            cartActions.addToCart({
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                image: product.image || images[0]
-            })
-        );
-        // Chuyển đến trang giỏ hàng
-        navigate('/cart');
+        if (product) {
+            dispatch(
+                cartActions.addToCart({
+                    id: product._id,
+                    name: product.productName,
+                    price: product.price,
+                    image: product.image || images[0]
+                })
+            );
+            message.success(`${product.productName} added to cart successfully!`);
+            navigate('/cart');
+        }
     };
+
+    // Handle loading state
+    if (status === 'loading') {
+        return (
+            <div className="container mx-auto px-4 py-8 text-center text-gray-600">
+                Loading product details...
+            </div>
+        );
+    }
+
+    // Handle error state
+    if (status === 'failed') {
+        return (
+            <div className="container mx-auto px-4 py-8 text-center text-red-500">
+                Error: {error || 'Failed to load product'}
+            </div>
+        );
+    }
+
+    // Handle no product found
+    if (!product) {
+        return (
+            <div className="container mx-auto px-4 py-8 text-center text-gray-600">
+                Product not found
+            </div>
+        );
+    }
 
     return (
         <>
@@ -86,7 +95,7 @@ const ProductDetail = () => {
                     <span className="text-gray-400">&gt;</span>
                     <Link to="/viewall" className="text-gray-600 hover:text-gray-900">Category</Link>
                     <span className="text-gray-400">&gt;</span>
-                    <span className="text-gray-900">{product.name}</span>
+                    <span className="text-gray-900">{product.productName}</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -113,7 +122,7 @@ const ProductDetail = () => {
                         <div className="flex-1 overflow-hidden rounded">
                             <img
                                 src={images[selectedImage] || "/placeholder.svg"}
-                                alt={product.name}
+                                alt={product.productName}
                                 className="h-full w-full object-cover"
                             />
                         </div>
@@ -121,16 +130,21 @@ const ProductDetail = () => {
 
                     {/* Phần thông tin sản phẩm */}
                     <div className="space-y-4">
-                        <h1 className="text-3xl font-bold">{product.name}</h1>
+                        <h1 className="text-3xl font-bold">{product.productName}</h1>
 
                         {/* Thời gian còn lại */}
                         <div className="flex items-center text-sm text-gray-600">
                             <FiClock className="mr-1" />
-                            <span>Time left {product.countdownTime}</span>
+                            <span>Time left {product.countdownTime || "Limited time"}</span>
                         </div>
 
                         {/* Giá sản phẩm */}
-                        <div className="text-2xl font-bold">{product.price}$</div>
+                        <div className="text-2xl font-bold">{product.price.toLocaleString()}đ</div>
+
+                        {/* Tác giả */}
+                        <div className="text-gray-700">
+                            <span className="font-medium">Tác giả:</span> {product.author}
+                        </div>
 
                         {/* Mô tả ngắn */}
                         <p className="text-gray-700">{product.description}</p>
@@ -164,14 +178,14 @@ const ProductDetail = () => {
                                 <FiTruck className="text-xl mr-4" />
                                 <div>
                                     <div className="font-medium">Shipping</div>
-                                    <div className="text-sm text-gray-600">{product.shipping}</div>
+                                    <div className="text-sm text-gray-600">{product.shipping || "Free shipping"}</div>
                                 </div>
                             </div>
                             <div className="flex items-center p-4">
                                 <FiClock className="text-xl mr-4" />
                                 <div>
                                     <div className="font-medium">Delivery</div>
-                                    <div className="text-sm text-gray-600">{product.delivery}</div>
+                                    <div className="text-sm text-gray-600">{product.delivery || "2-3 business days"}</div>
                                 </div>
                             </div>
                         </div>
@@ -182,9 +196,12 @@ const ProductDetail = () => {
                 <div className="mt-12 border rounded-md p-6">
                     <h2 className="text-xl font-bold mb-4">About this item</h2>
                     <div className="space-y-4">
-                        {product.about.map((paragraph, index) => (
-                            <p key={index} className="text-gray-700">{paragraph}</p>
-                        ))}
+                        {product.about && Array.isArray(product.about)
+                            ? product.about.map((paragraph, index) => (
+                                <p key={index} className="text-gray-700">{paragraph}</p>
+                            ))
+                            : <p className="text-gray-700">{product.description || "No description available"}</p>
+                        }
                     </div>
                 </div>
                 <div className='mt-12'>

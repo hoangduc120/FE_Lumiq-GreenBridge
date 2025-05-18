@@ -7,7 +7,6 @@ export const fetchProducts = createAsyncThunk(
     async ({ page = 1, limit = 6, sort = '', search = '' }, { rejectWithValue }) => {
         try {
             const response = await getAllProducts(page, limit, sort, search);
-            console.log('Processed API response:', response);
 
             // Truy cập vào dữ liệu thực tế trong cấu trúc response
             if (response.data && response.data.data) {
@@ -69,8 +68,6 @@ const productSlice = createSlice({
             })
             .addCase(fetchProducts.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                console.log('Action payload in fulfilled:', action.payload);
-
                 // Xử lý kết quả từ API
                 state.products = action.payload.products || [];
                 state.filteredProducts = action.payload.products || [];

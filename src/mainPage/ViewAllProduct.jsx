@@ -32,12 +32,6 @@ const ViewAllProduct = () => {
 
     // Fetch products when relevant parameters change
     useEffect(() => {
-        console.log('Fetching products with:', {
-            page: currentPage,
-            limit: productsPerPage,
-            sort,
-            search: debouncedSearch
-        });
         dispatch(fetchProducts({
             page: currentPage,
             limit: productsPerPage,
@@ -45,15 +39,7 @@ const ViewAllProduct = () => {
             search: debouncedSearch
         }));
     }, [dispatch, currentPage, sort, debouncedSearch]);
-
-    // Log khi trạng thái products thay đổi
     useEffect(() => {
-        console.log('Products state updated:', {
-            productsCount: products.length,
-            filteredCount: filteredProducts.length,
-            status,
-            error
-        });
     }, [products, filteredProducts, status, error]);
 
     // Handle page change
@@ -66,7 +52,6 @@ const ViewAllProduct = () => {
 
     // Handle price filter
     const handlePriceFilter = (minPrice, maxPrice) => {
-        console.log('Price filter changed:', { minPrice, maxPrice });
         dispatch(setPriceRange({ min: minPrice, max: maxPrice }));
     };
 

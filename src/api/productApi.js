@@ -37,9 +37,10 @@ export const getAllProducts = async (page = 1, limit = 6, sort = '', search = ''
 };
 export const getProductById = async (id) => {
     try {
-        const response = await instance.get(`${BASE_URL}/${id}`)
-        return response.data
+        const response = await instance.get(`${BASE_URL}/${id}`);
+        return response.data;
     } catch (error) {
-        throw error
+        console.error('Error fetching product:', error);
+        throw error;
     }
 }
