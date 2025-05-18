@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { cartActions } from '../redux/slices/cartSlice';
 import { createMomoPaymentThunk, resetPaymentState } from '../redux/slices/momoSlice';
+import { createVnPayPaymentThunk, resetPaymentState as resetVnPayState } from '../redux/slices/vnpaySlice';
 import { Empty, Modal, Spin } from 'antd';
 import { IoArrowBackOutline } from "react-icons/io5";
 import { GrFormNext } from "react-icons/gr";
@@ -20,16 +21,25 @@ const Cart = () => {
     const cartItems = useSelector(state => state.cart.items);
     const totalAmount = useSelector(state => state.cart.totalAmount);
     const { paymentLoading, paymentError, paymentUrl, paymentData } = useSelector(state => state.momo);
+    const {
+        paymentLoading: vnpayLoading,
+        paymentError: vnpayError,
+        paymentUrl: vnpayUrl,
+        paymentData: vnpayData
+    } = useSelector(state => state.vnpay);
 
     const shippingFee = 20;
     const total = totalAmount + shippingFee;
 
-    // Kiểm tra URL param khi trở về từ MoMo
+    // Kiểm tra URL param khi trở về từ MoMo hoặc VNPay
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const resultCode = params.get('resultCode');
         const orderId = params.get('orderId');
+        const vnp_ResponseCode = params.get('vnp_ResponseCode');
+        const vnp_TxnRef = params.get('vnp_TxnRef');
 
+        // Kiểm tra callback từ MoMo
         if (resultCode && orderId) {
             if (resultCode === '0') {
                 toast.success('Thanh toán thành công! Cảm ơn bạn đã mua hàng.');
@@ -42,33 +52,69 @@ const Cart = () => {
             navigate(location.pathname, { replace: true });
         }
 
+        // Kiểm tra callback từ VNPay
+        if (vnp_ResponseCode && vnp_TxnRef) {
+            if (vnp_ResponseCode === '00') {
+                toast.success('Thanh toán VNPay thành công! Cảm ơn bạn đã mua hàng.');
+                // Xóa giỏ hàng sau khi thanh toán thành công
+                dispatch(cartActions.clearCart());
+            } else {
+                toast.error('Thanh toán VNPay thất bại. Vui lòng thử lại sau.');
+            }
+            // Xóa query params khỏi URL
+            navigate(location.pathname, { replace: true });
+        }
+
         // Cleanup function
         return () => {
             dispatch(resetPaymentState());
+            dispatch(resetVnPayState());
         };
     }, [location, dispatch, navigate]);
 
-    // Effect xử lý khi có paymentUrl
+    // Effect xử lý khi có paymentUrl từ MoMo
     useEffect(() => {
-        console.log('Payment URL state changed:', paymentUrl);
+        console.log('MoMo Payment URL state changed:', paymentUrl);
         if (paymentUrl) {
-            console.log('Redirecting to payment URL:', paymentUrl);
+            console.log('Redirecting to MoMo payment URL:', paymentUrl);
             window.location.href = paymentUrl;
         }
     }, [paymentUrl]);
 
+    // Effect xử lý khi có paymentUrl từ VNPay
+    useEffect(() => {
+        console.log('VNPay Payment URL state changed:', vnpayUrl);
+        if (vnpayUrl) {
+            console.log('Redirecting to VNPay payment URL:', vnpayUrl);
+            window.location.href = vnpayUrl;
+        }
+    }, [vnpayUrl]);
+
     // Effect xử lý khi có paymentData
     useEffect(() => {
-        console.log('Payment data changed:', paymentData);
+        console.log('MoMo Payment data changed:', paymentData);
     }, [paymentData]);
 
-    // Effect xử lý khi có lỗi thanh toán
+    // Effect xử lý khi có vnpayData
+    useEffect(() => {
+        console.log('VNPay Payment data changed:', vnpayData);
+    }, [vnpayData]);
+
+    // Effect xử lý khi có lỗi thanh toán MoMo
     useEffect(() => {
         if (paymentError) {
-            console.error('Payment error:', paymentError);
+            console.error('MoMo Payment error:', paymentError);
             toast.error(paymentError);
         }
     }, [paymentError]);
+
+    // Effect xử lý khi có lỗi thanh toán VNPay
+    useEffect(() => {
+        if (vnpayError) {
+            console.error('VNPay Payment error:', vnpayError);
+            toast.error(vnpayError);
+        }
+    }, [vnpayError]);
 
     // Handle quantity change
     const updateQuantity = (id, newQuantity) => {
@@ -112,6 +158,29 @@ const Cart = () => {
         dispatch(createMomoPaymentThunk(paymentData));
     };
 
+    // Xử lý thanh toán bằng VNPay
+    const handleVnPayPayment = () => {
+        console.log('VNPay payment button clicked');
+
+        // Kiểm tra xem có sản phẩm trong giỏ hàng không
+        if (cartItems.length === 0) {
+            console.log('Cart is empty, showing error toast');
+            toast.error("Giỏ hàng của bạn đang trống");
+            return;
+        }
+
+        // Tạo dữ liệu cho API thanh toán
+        const paymentData = {
+            amount: total,
+            orderId: `ORDER_${Date.now()}`
+        };
+
+        console.log('Dispatching VNPay payment with data:', paymentData);
+
+        // Gọi action Redux để tạo thanh toán VNPay
+        dispatch(createVnPayPaymentThunk(paymentData));
+    };
+
     console.log('Cart render - paymentLoading:', paymentLoading, 'paymentUrl:', paymentUrl);
 
     return (
@@ -131,9 +200,9 @@ const Cart = () => {
             </div>
 
             {/* Hiển thị lỗi nếu có */}
-            {paymentError && (
+            {(paymentError || vnpayError) && (
                 <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    {paymentError}
+                    {paymentError || vnpayError}
                 </div>
             )}
 
@@ -264,13 +333,23 @@ const Cart = () => {
                                     </div>
                                 </div>
 
-                                <button
-                                    className="mt-4 w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 flex items-center justify-center"
-                                    onClick={handleMomoPayment}
-                                    disabled={paymentLoading}
-                                >
-                                    {paymentLoading ? <Spin size="small" /> : 'Thanh toán bằng MoMo'}
-                                </button>
+                                <div className="flex flex-col gap-2">
+                                    <button
+                                        className="w-full bg-pink-500 text-white py-2 rounded hover:bg-pink-600 flex items-center justify-center"
+                                        onClick={handleMomoPayment}
+                                        disabled={paymentLoading || vnpayLoading}
+                                    >
+                                        {paymentLoading ? <Spin size="small" /> : 'Thanh toán bằng MoMo'}
+                                    </button>
+
+                                    <button
+                                        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 flex items-center justify-center"
+                                        onClick={handleVnPayPayment}
+                                        disabled={paymentLoading || vnpayLoading}
+                                    >
+                                        {vnpayLoading ? <Spin size="small" /> : 'Thanh toán bằng VNPay'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -3,6 +3,7 @@ import cartReducer from './slices/cartSlice';
 import productReducer from './slices/productSlice';
 import productDetailSlice from './slices/productDetailSlice';
 import momoReducer from './slices/momoSlice';
+import vnpayReducer from './slices/vnpaySlice';
 
 const store = configureStore({
     reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
         products: productReducer,
         productDetail: productDetailSlice,
         momo: momoReducer,
+        vnpay: vnpayReducer,
     },
 });
 
