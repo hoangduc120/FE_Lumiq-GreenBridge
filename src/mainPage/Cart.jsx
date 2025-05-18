@@ -95,7 +95,7 @@ const Cart = () => {
                                     {/* Price */}
                                     <div className="ml-6 lg:ml-0 lg:text-center">
                                         <span className="text-sm font-medium lg:hidden">Price: </span>
-                                        <span className="text-sm">${item.price}</span>
+                                        <span className="text-sm">{item.price}đ</span>
                                     </div>
 
                                     {/* Quantity */}
@@ -125,7 +125,7 @@ const Cart = () => {
                                     {/* Unit Price */}
                                     <div className="ml-6 lg:ml-0 lg:text-right">
                                         <span className="text-sm font-medium lg:hidden">Total: </span>
-                                        <span className="text-sm font-medium">${item.price * item.quantity}</span>
+                                        <span className="text-sm font-medium">{item.price * item.quantity}đ</span>
                                     </div>
                                 </div>
                             ))}
@@ -163,18 +163,18 @@ const Cart = () => {
                             <div className="space-y-4">
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Subtotal</span>
-                                    <span className="font-medium">${totalAmount}</span>
+                                    <span className="font-medium">{totalAmount}đ</span>
                                 </div>
 
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Shipping fee</span>
-                                    <span className="font-medium">${shippingFee}</span>
+                                    <span className="font-medium">{shippingFee}đ</span>
                                 </div>
 
                                 <div className="border-t pt-4">
                                     <div className="flex justify-between">
                                         <span className="text-lg font-bold">TOTAL</span>
-                                        <span className="text-lg font-bold">${total}</span>
+                                        <span className="text-lg font-bold">{total}đ</span>
                                     </div>
                                 </div>
 

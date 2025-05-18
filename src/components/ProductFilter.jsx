@@ -116,7 +116,6 @@ const ProductFilter = () => {
 
     // Áp dụng bộ lọc
     const applyFilter = () => {
-        console.log("Applying filter with price range:", priceRange);
         // Có thể gọi callback hoặc dispatch action ở đây
     };
 
