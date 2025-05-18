@@ -30,31 +30,31 @@ const RatingAndReview = () => {
                         <div className="mb-1 flex items-center">
                             <span className="mr-2 w-3">5</span>
                             <div className="flex-1 overflow-hidden rounded-full bg-gray-200">
-                                <div className="h-5 w-[90%] rounded-full bg-blue-500"></div>
+                                <div className="h-5 w-[100%] rounded-full bg-blue-500"></div>
                             </div>
                         </div>
                         <div className="mb-1 flex items-center">
                             <span className="mr-2 w-3">4</span>
                             <div className="flex-1 overflow-hidden rounded-full bg-gray-200">
-                                <div className="h-5 w-[75%] rounded-full bg-blue-500"></div>
+                                <div className="h-5 w-[80%] rounded-full bg-blue-500"></div>
                             </div>
                         </div>
                         <div className="mb-1 flex items-center">
                             <span className="mr-2 w-3">3</span>
                             <div className="flex-1 overflow-hidden rounded-full bg-gray-200">
-                                <div className="h-5 w-0 rounded-full bg-blue-500"></div>
+                                <div className="h-5 w-[60%] rounded-full bg-blue-500"></div>
                             </div>
                         </div>
                         <div className="mb-1 flex items-center">
                             <span className="mr-2 w-3">2</span>
                             <div className="flex-1 overflow-hidden rounded-full bg-gray-200">
-                                <div className="h-5 w-0 rounded-full bg-blue-500"></div>
+                                <div className="h-5 w-[40%] rounded-full bg-blue-500"></div>
                             </div>
                         </div>
                         <div className="mb-1 flex items-center">
                             <span className="mr-2 w-3">1</span>
                             <div className="flex-1 overflow-hidden rounded-full bg-gray-200">
-                                <div className="h-5 w-[10%] rounded-full bg-blue-500"></div>
+                                <div className="h-5 w-[20%] rounded-full bg-blue-500"></div>
                             </div>
                         </div>
                     </div>
