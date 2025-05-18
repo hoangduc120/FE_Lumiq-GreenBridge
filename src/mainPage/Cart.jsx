@@ -19,7 +19,7 @@ const Cart = () => {
     // Lấy state từ Redux
     const cartItems = useSelector(state => state.cart.items);
     const totalAmount = useSelector(state => state.cart.totalAmount);
-    const { paymentLoading, paymentError, paymentUrl } = useSelector(state => state.momo);
+    const { paymentLoading, paymentError, paymentUrl, paymentData } = useSelector(state => state.momo);
 
     const shippingFee = 20;
     const total = totalAmount + shippingFee;
@@ -50,14 +50,22 @@ const Cart = () => {
 
     // Effect xử lý khi có paymentUrl
     useEffect(() => {
+        console.log('Payment URL state changed:', paymentUrl);
         if (paymentUrl) {
+            console.log('Redirecting to payment URL:', paymentUrl);
             window.location.href = paymentUrl;
         }
     }, [paymentUrl]);
 
+    // Effect xử lý khi có paymentData
+    useEffect(() => {
+        console.log('Payment data changed:', paymentData);
+    }, [paymentData]);
+
     // Effect xử lý khi có lỗi thanh toán
     useEffect(() => {
         if (paymentError) {
+            console.error('Payment error:', paymentError);
             toast.error(paymentError);
         }
     }, [paymentError]);
@@ -83,8 +91,11 @@ const Cart = () => {
 
     // Xử lý thanh toán bằng MoMo
     const handleMomoPayment = () => {
+        console.log('MoMo payment button clicked');
+
         // Kiểm tra xem có sản phẩm trong giỏ hàng không
         if (cartItems.length === 0) {
+            console.log('Cart is empty, showing error toast');
             toast.error("Giỏ hàng của bạn đang trống");
             return;
         }
@@ -95,9 +106,13 @@ const Cart = () => {
             orderId: `ORDER_${Date.now()}`
         };
 
+        console.log('Dispatching MoMo payment with data:', paymentData);
+
         // Gọi action Redux để tạo thanh toán MoMo
         dispatch(createMomoPaymentThunk(paymentData));
     };
+
+    console.log('Cart render - paymentLoading:', paymentLoading, 'paymentUrl:', paymentUrl);
 
     return (
         <div className="container mx-auto px-4 py-8">
