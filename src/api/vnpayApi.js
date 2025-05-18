@@ -10,13 +10,10 @@ import axiosInstance from './axios';
  */
 export const createVnPayPayment = async (paymentData) => {
     try {
-        console.log('Creating VNPay payment with data:', paymentData);
         const response = await axiosInstance.post('/payment/vnpay', paymentData);
-        console.log('VNPay payment response:', response.data);
 
         // Kiểm tra cấu trúc response
         if (response.data && response.data.data && response.data.data.paymentUrl) {
-            console.log('Payment URL found:', response.data.data.paymentUrl);
         } else {
             console.warn('Payment URL not found in response. Response structure:', JSON.stringify(response.data));
         }
@@ -38,9 +35,7 @@ export const createVnPayPayment = async (paymentData) => {
  */
 export const verifyVnPayPayment = async (verifyData) => {
     try {
-        console.log('Verifying VNPay payment with data:', verifyData);
         const response = await axiosInstance.post('/payment/vnpay/verify', verifyData);
-        console.log('VNPay verify response:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error verifying VNPay payment:', error);

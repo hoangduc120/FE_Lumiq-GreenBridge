@@ -74,36 +74,29 @@ const Cart = () => {
 
     // Effect xử lý khi có paymentUrl từ MoMo
     useEffect(() => {
-        console.log('MoMo Payment URL state changed:', paymentUrl);
         if (paymentUrl) {
-            console.log('Redirecting to MoMo payment URL:', paymentUrl);
             window.location.href = paymentUrl;
         }
     }, [paymentUrl]);
 
     // Effect xử lý khi có paymentUrl từ VNPay
     useEffect(() => {
-        console.log('VNPay Payment URL state changed:', vnpayUrl);
         if (vnpayUrl) {
-            console.log('Redirecting to VNPay payment URL:', vnpayUrl);
             window.location.href = vnpayUrl;
         }
     }, [vnpayUrl]);
 
     // Effect xử lý khi có paymentData
     useEffect(() => {
-        console.log('MoMo Payment data changed:', paymentData);
     }, [paymentData]);
 
     // Effect xử lý khi có vnpayData
     useEffect(() => {
-        console.log('VNPay Payment data changed:', vnpayData);
     }, [vnpayData]);
 
     // Effect xử lý khi có lỗi thanh toán MoMo
     useEffect(() => {
         if (paymentError) {
-            console.error('MoMo Payment error:', paymentError);
             toast.error(paymentError);
         }
     }, [paymentError]);
@@ -111,7 +104,6 @@ const Cart = () => {
     // Effect xử lý khi có lỗi thanh toán VNPay
     useEffect(() => {
         if (vnpayError) {
-            console.error('VNPay Payment error:', vnpayError);
             toast.error(vnpayError);
         }
     }, [vnpayError]);
@@ -137,11 +129,9 @@ const Cart = () => {
 
     // Xử lý thanh toán bằng MoMo
     const handleMomoPayment = () => {
-        console.log('MoMo payment button clicked');
 
         // Kiểm tra xem có sản phẩm trong giỏ hàng không
         if (cartItems.length === 0) {
-            console.log('Cart is empty, showing error toast');
             toast.error("Giỏ hàng của bạn đang trống");
             return;
         }
@@ -152,7 +142,6 @@ const Cart = () => {
             orderId: `ORDER_${Date.now()}`
         };
 
-        console.log('Dispatching MoMo payment with data:', paymentData);
 
         // Gọi action Redux để tạo thanh toán MoMo
         dispatch(createMomoPaymentThunk(paymentData));
@@ -160,28 +149,20 @@ const Cart = () => {
 
     // Xử lý thanh toán bằng VNPay
     const handleVnPayPayment = () => {
-        console.log('VNPay payment button clicked');
-
         // Kiểm tra xem có sản phẩm trong giỏ hàng không
         if (cartItems.length === 0) {
-            console.log('Cart is empty, showing error toast');
             toast.error("Giỏ hàng của bạn đang trống");
             return;
         }
-
         // Tạo dữ liệu cho API thanh toán
         const paymentData = {
             amount: total,
             orderId: `ORDER_${Date.now()}`
         };
-
-        console.log('Dispatching VNPay payment with data:', paymentData);
-
         // Gọi action Redux để tạo thanh toán VNPay
         dispatch(createVnPayPaymentThunk(paymentData));
     };
 
-    console.log('Cart render - paymentLoading:', paymentLoading, 'paymentUrl:', paymentUrl);
 
     return (
         <div className="container mx-auto px-4 py-8">
