@@ -1,10 +1,8 @@
-import React, { useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { cartActions } from '../redux/slices/cartSlice';
-import { createMomoPaymentThunk, resetPaymentState } from '../redux/slices/momoSlice';
-import { createVnPayPaymentThunk, resetPaymentState as resetVnPayState } from '../redux/slices/vnpaySlice';
-import { Empty, Modal, Spin } from 'antd';
+import { Empty } from 'antd';
 import { IoArrowBackOutline } from "react-icons/io5";
 import { GrFormNext } from "react-icons/gr";
 import { FaTrashAlt } from "react-icons/fa";
@@ -13,156 +11,65 @@ import { FiPlus } from "react-icons/fi";
 import { toast } from 'react-toastify';
 
 const Cart = () => {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const location = useLocation();
-
-    // Lấy state từ Redux
-    const cartItems = useSelector(state => state.cart.items);
-    const totalAmount = useSelector(state => state.cart.totalAmount);
-    const { paymentLoading, paymentError, paymentUrl, paymentData } = useSelector(state => state.momo);
-    const {
-        paymentLoading: vnpayLoading,
-        paymentError: vnpayError,
-        paymentUrl: vnpayUrl,
-        paymentData: vnpayData
-    } = useSelector(state => state.vnpay);
-
-    const shippingFee = 20;
+    const dispatch = useDispatch();
+    const { cartItems, totalAmount } = useSelector((state) => state.cart);
+    const [shippingAddress, setShippingAddress] = useState({
+        address: '',
+        city: '',
+        postalCode: ''
+    });
+    const [shippingFee, setShippingFee] = useState(30000); // Phí vận chuyển mặc định
     const total = totalAmount + shippingFee;
 
-    // Kiểm tra URL param khi trở về từ MoMo hoặc VNPay
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const resultCode = params.get('resultCode');
-        const orderId = params.get('orderId');
-        const vnp_ResponseCode = params.get('vnp_ResponseCode');
-        const vnp_TxnRef = params.get('vnp_TxnRef');
-
-        // Kiểm tra callback từ MoMo
-        if (resultCode && orderId) {
-            if (resultCode === '0') {
-                toast.success('Thanh toán thành công! Cảm ơn bạn đã mua hàng.');
-                // Xóa giỏ hàng sau khi thanh toán thành công
-                dispatch(cartActions.clearCart());
-            } else {
-                toast.error('Thanh toán thất bại. Vui lòng thử lại sau.');
-            }
-            // Xóa query params khỏi URL
-            navigate(location.pathname, { replace: true });
+    const updateQuantity = (itemId, newQuantity) => {
+        if (newQuantity <= 0) {
+            removeItem(itemId);
+            return;
         }
-
-        // Kiểm tra callback từ VNPay
-        if (vnp_ResponseCode && vnp_TxnRef) {
-            if (vnp_ResponseCode === '00') {
-                toast.success('Thanh toán VNPay thành công! Cảm ơn bạn đã mua hàng.');
-                // Xóa giỏ hàng sau khi thanh toán thành công
-                dispatch(cartActions.clearCart());
-            } else {
-                toast.error('Thanh toán VNPay thất bại. Vui lòng thử lại sau.');
-            }
-            // Xóa query params khỏi URL
-            navigate(location.pathname, { replace: true });
-        }
-
-        // Cleanup function
-        return () => {
-            dispatch(resetPaymentState());
-            dispatch(resetVnPayState());
-        };
-    }, [location, dispatch, navigate]);
-
-    // Effect xử lý khi có paymentUrl từ MoMo
-    useEffect(() => {
-        if (paymentUrl) {
-            window.location.href = paymentUrl;
-        }
-    }, [paymentUrl]);
-
-    // Effect xử lý khi có paymentUrl từ VNPay
-    useEffect(() => {
-        if (vnpayUrl) {
-            window.location.href = vnpayUrl;
-        }
-    }, [vnpayUrl]);
-
-    // Effect xử lý khi có paymentData
-    useEffect(() => {
-    }, [paymentData]);
-
-    // Effect xử lý khi có vnpayData
-    useEffect(() => {
-    }, [vnpayData]);
-
-    // Effect xử lý khi có lỗi thanh toán MoMo
-    useEffect(() => {
-        if (paymentError) {
-            toast.error(paymentError);
-        }
-    }, [paymentError]);
-
-    // Effect xử lý khi có lỗi thanh toán VNPay
-    useEffect(() => {
-        if (vnpayError) {
-            toast.error(vnpayError);
-        }
-    }, [vnpayError]);
-
-    // Handle quantity change
-    const updateQuantity = (id, newQuantity) => {
-        if (newQuantity < 1) {
-            dispatch(cartActions.removeItemCompletely(id));
-        } else if (newQuantity < cartItems.find(item => item.id === id).quantity) {
-            dispatch(cartActions.removeFromCart(id));
-        } else {
-            dispatch(cartActions.addToCart({
-                id: id,
-                price: cartItems.find(item => item.id === id).price
-            }));
-        }
+        dispatch(cartActions.updateCartItemQuantity({ itemId, quantity: newQuantity }));
+        toast.success('Đã cập nhật số lượng sản phẩm');
     };
 
-    // Handle item removal
-    const removeItem = (id) => {
-        dispatch(cartActions.removeItemCompletely(id));
+    const removeItem = (itemId) => {
+        dispatch(cartActions.removeFromCart(itemId));
+        toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
     };
 
-    // Xử lý thanh toán bằng MoMo
-    const handleMomoPayment = () => {
+    const handleAddressChange = (e) => {
+        const { name, value } = e.target;
+        setShippingAddress(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
 
-        // Kiểm tra xem có sản phẩm trong giỏ hàng không
+    const handleProceedToPayment = () => {
+        // Kiểm tra giỏ hàng
         if (cartItems.length === 0) {
-            toast.error("Giỏ hàng của bạn đang trống");
+            toast.error('Giỏ hàng của bạn đang trống');
             return;
         }
 
-        // Tạo dữ liệu cho API thanh toán
-        const paymentData = {
-            amount: total,
-            orderId: `ORDER_${Date.now()}`
-        };
-
-
-        // Gọi action Redux để tạo thanh toán MoMo
-        dispatch(createMomoPaymentThunk(paymentData));
-    };
-
-    // Xử lý thanh toán bằng VNPay
-    const handleVnPayPayment = () => {
-        // Kiểm tra xem có sản phẩm trong giỏ hàng không
-        if (cartItems.length === 0) {
-            toast.error("Giỏ hàng của bạn đang trống");
+        // Kiểm tra địa chỉ giao hàng
+        if (!shippingAddress.address || !shippingAddress.city) {
+            toast.error('Vui lòng nhập đầy đủ địa chỉ giao hàng');
             return;
         }
-        // Tạo dữ liệu cho API thanh toán
-        const paymentData = {
-            amount: total,
-            orderId: `ORDER_${Date.now()}`
-        };
-        // Gọi action Redux để tạo thanh toán VNPay
-        dispatch(createVnPayPaymentThunk(paymentData));
-    };
 
+        // Chuẩn bị dữ liệu đơn hàng để chuyển đến trang thanh toán
+        const orderData = {
+            id: `ORDER_${Date.now()}`,
+            items: cartItems,
+            totalAmount: total,
+            shippingAddress,
+            shippingFee,
+            createdAt: new Date().toISOString()
+        };
+
+        // Chuyển đến trang thanh toán với dữ liệu đơn hàng
+        navigate('/payment', { state: { orderData } });
+    };
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -179,13 +86,6 @@ const Cart = () => {
                 <GrFormNext />
                 <span>Cart</span>
             </div>
-
-            {/* Hiển thị lỗi nếu có */}
-            {(paymentError || vnpayError) && (
-                <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    {paymentError || vnpayError}
-                </div>
-            )}
 
             <div className="lg:flex lg:gap-8">
                 <div className="mb-8 lg:mb-0 lg:flex-1">
@@ -296,6 +196,37 @@ const Cart = () => {
                         <div className="rounded border p-6">
                             <h2 className="mb-6 text-lg font-medium">Order Summary</h2>
 
+                            {/* Shipping Address Form */}
+                            <div className="mb-4">
+                                <h3 className="mb-2 font-medium">Địa chỉ giao hàng</h3>
+                                <input
+                                    type="text"
+                                    name="address"
+                                    value={shippingAddress.address}
+                                    onChange={handleAddressChange}
+                                    placeholder="Địa chỉ"
+                                    className="w-full p-2 border border-gray-300 rounded mb-2"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="city"
+                                    value={shippingAddress.city}
+                                    onChange={handleAddressChange}
+                                    placeholder="Thành phố"
+                                    className="w-full p-2 border border-gray-300 rounded mb-2"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="postalCode"
+                                    value={shippingAddress.postalCode}
+                                    onChange={handleAddressChange}
+                                    placeholder="Mã bưu điện"
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                />
+                            </div>
+
                             <div className="space-y-4">
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Subtotal</span>
@@ -316,19 +247,10 @@ const Cart = () => {
 
                                 <div className="flex flex-col gap-2">
                                     <button
-                                        className="w-full bg-pink-500 text-white py-2 rounded hover:bg-pink-600 flex items-center justify-center"
-                                        onClick={handleMomoPayment}
-                                        disabled={paymentLoading || vnpayLoading}
+                                        className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+                                        onClick={handleProceedToPayment}
                                     >
-                                        {paymentLoading ? <Spin size="small" /> : 'Thanh toán bằng MoMo'}
-                                    </button>
-
-                                    <button
-                                        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 flex items-center justify-center"
-                                        onClick={handleVnPayPayment}
-                                        disabled={paymentLoading || vnpayLoading}
-                                    >
-                                        {vnpayLoading ? <Spin size="small" /> : 'Thanh toán bằng VNPay'}
+                                        Tiến hành thanh toán
                                     </button>
                                 </div>
                             </div>

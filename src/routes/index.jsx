@@ -8,6 +8,8 @@ import ViewAllProduct from "../mainPage/ViewAllProduct";
 import ProductDetail from "../mainPage/ProductDetail";
 import RatingAndReview from "../mainPage/RatingAndReview";
 import Cart from "../mainPage/Cart";
+import Payment from "../mainPage/Payment";
+import PaymentResult from "../mainPage/PaymentResult";
 
 export default function AppRoutes() {
   return (
@@ -19,6 +21,9 @@ export default function AppRoutes() {
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/rating-review" element={<RatingAndReview />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/payment/momo-return" element={<PaymentResult />} />
+        <Route path="/payment/vnpay-return" element={<PaymentResult />} />
       </Route>
       <Route path="/login" element={<LoginPage />} />
     </Routes>
