@@ -1,20 +1,15 @@
-import axios from "axios";
+import axiosInstance from './axios';
+import axios from 'axios';
 
 const BASE_URL = "http://localhost:5000/auth";
 
 export const loginEmail = async (email, password) => {
   try {
-    const response = await axios.post(
-      `${BASE_URL}/login`,
-      {
-        email,
-        password,
-      },
-      {
-        withCredentials: true,
-      }
-    );
-    return response.data;
+    const response = await axiosInstance.post('/auth/login', {
+      email,
+      password,
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -22,12 +17,10 @@ export const loginEmail = async (email, password) => {
 
 export const logout = async () => {
   try {
-    const response = await axios.post(
-      `${BASE_URL}/logout`,
-      {},
-      { withCredentials: true }
-    );
-    return response.data;
+    const response = await axiosInstance.post('/auth/logout');
+    // Xóa thông tin user trong localStorage
+    localStorage.removeItem('user');
+    return response;
   } catch (error) {
     throw error;
   }
@@ -39,12 +32,21 @@ export const loginGoogle = () => {
 
 export const register = async (email, password, confirmPassword) => {
   try {
-    const response = await axios.post(`${BASE_URL}/register`, {
+    const response = await axiosInstance.post('/auth/register', {
       email,
       password,
       confirmPassword,
     });
-    return response.data;
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const refreshToken = async () => {
+  try {
+    const response = await axiosInstance.post('/auth/refresh-token');
+    return response;
   } catch (error) {
     throw error;
   }

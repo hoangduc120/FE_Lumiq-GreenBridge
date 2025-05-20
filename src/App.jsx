@@ -7,7 +7,7 @@ import AppRoutes from "./routes";
 
 function App() {
   return (
-    <div className="w-screen min-h-screen h-auto relative dark:bg-[#121212]">
+    <div>
       <AppRoutes />
       <ToastContainer
         transition={Slide}
