@@ -4,6 +4,7 @@ import productReducer from './slices/productSlice';
 import productDetailSlice from './slices/productDetailSlice';
 import momoReducer from './slices/momoSlice';
 import vnpayReducer from './slices/vnpaySlice';
+import orderReducer from './slices/orderSlice';
 
 const store = configureStore({
     reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
         productDetail: productDetailSlice,
         momo: momoReducer,
         vnpay: vnpayReducer,
+        order: orderReducer,
     },
 });
 
