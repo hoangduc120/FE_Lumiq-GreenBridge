@@ -93,7 +93,7 @@ const FAQSection = () => {
               onClick={() => handleToggle(index)}
             >
               <span className="inline-flex items-center justify-center w-6 h-6 mr-3 text-white bg-green-600 rounded-full transition-all">
-                {openIndex === index ? '-' : '+'}
+                {openIndex === index ? <FiMinus size={16} /> : <FiPlus size={16} />}
               </span>
               <div>
                 <h3 className="text-md font-medium text-gray-800">{faq.question}</h3>

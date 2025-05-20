@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
 
 const BASE_URL = 'http://localhost:5000';
 axios.defaults.withCredentials = true;
@@ -13,7 +14,6 @@ const instance = axios.create({
   }
 });
 
-// Lưu tất cả các request đang chờ xử lý khi refresh token
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -29,12 +29,11 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Request interceptor để thêm token vào header
 instance.interceptors.request.use(
   (config) => {
     console.log('API Request:', config.method.toUpperCase(), config.url, config.data);
 
-    const token = localStorage.getItem('accessToken');
+    const token = Cookies.get('accessToken');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -46,7 +45,6 @@ instance.interceptors.request.use(
   }
 );
 
-// Response interceptor
 instance.interceptors.response.use(
   (response) => {
     console.log('API Response:', response.status, response.data);
@@ -79,43 +77,23 @@ instance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Lấy refreshToken từ cookie hoặc localStorage nếu cần
         await instance.post('/auth/refresh-token');
-
-        // Đặt lại flag
         isRefreshing = false;
-
-        // Xử lý các request đang chờ
         processQueue(null);
-
-        // Thực hiện lại request ban đầu
         return instance(originalRequest);
       } catch (refreshError) {
-        // Xử lý khi refresh token thất bại
         console.error('Refresh token failed:', refreshError);
-
-        // Thông báo lỗi
         toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-
-        // Xóa thông tin user trong localStorage
         localStorage.removeItem('user');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-
-        // Đặt lại flag
+        Cookies.remove('accessToken');
+        Cookies.removeItem('refreshToken');
         isRefreshing = false;
-
-        // Xử lý các request đang chờ với lỗi
         processQueue(refreshError);
-
-        // Chuyển hướng đến trang đăng nhập
         window.location.href = '/login';
-
         return Promise.reject(refreshError);
       }
     }
 
-    // Hiển thị thông báo lỗi dễ hiểu cho người dùng
     if (error.response) {
       const errorMessage = error.response.data?.message || 'Đã xảy ra lỗi khi gọi API';
       toast.error(errorMessage);

@@ -77,7 +77,8 @@ const AuthPage = () => {
       const response = await loginEmail(email, password);
 
       if (response.status === 200) {
-        const { user, token, refreshToken } = response.data;
+        const { user, token, refreshToken } = response.data.data;
+        console.log(user)
         localStorage.setItem("user", JSON.stringify(user));
         toast.success("Login successful!");
         navigate("/", { replace: true });

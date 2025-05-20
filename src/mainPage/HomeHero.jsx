@@ -8,13 +8,12 @@ const HomeHero = () => {
       className="relative w-full overflow-hidden"
       style={{
         background: "linear-gradient(to bottom, #E6F2DF, #8FDA61)",
-        minHeight: "calc(100vh - 64px)", // trừ chiều cao header
+        minHeight: "calc(100vh - 64px)", 
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
       }}
     >
-      {/* Decorative Leaves */}
       <img
         src={Leaf}
         alt="leaf"
@@ -41,7 +40,6 @@ const HomeHero = () => {
         className="absolute bottom-40 left-[50%] w-28 opacity-70 -translate-x-1/2"
       />
 
-      {/* Center Content */}
       <div className="flex flex-col items-center text-center space-y-6 z-10">
         <h1 className="text-4xl md:text-5xl font-bold text-green-900 leading-snug">
           Your home <br /> for help
