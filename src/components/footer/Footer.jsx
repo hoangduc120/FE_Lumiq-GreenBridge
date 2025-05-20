@@ -1,108 +1,141 @@
 import React from "react";
-import { FooterLogo } from "../../assets";
-import { CiMail } from "react-icons/ci";
-import { FaTwitter, FaFacebook, FaInstagram } from "react-icons/fa";
+import { FiFacebook, FiInstagram, FiLinkedin, FiMail, FiTwitter, FiYoutube } from "react-icons/fi";
 
-function Footer() {
+const Footer = () => {
   return (
-    <footer className="bg-white px-6 py-10 md:px-12">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div className="col-span-1 md:col-span-2">
-          <div className="flex items-center mb-6">
-            <img
-              src={FooterLogo}
-              alt="GreenBridge Logo"
-              className="h-10 mr-3"
-            />
-            <p className="text-[#2D8952] text-2xl font-semibold">GREENBRIDGE</p>
-          </div>
-          <p className="text-gray-600 mb-4">
-            Join our newsletter to stay up to date on features and releases.
-          </p>
-          <div className="flex flex-col gap-3">
-            <div className="relative">
-              <CiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+    <footer className="w-full bg-gray-100 py-10 px-6 md:px-20 text-green-700">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-6 gap-10">
+        <div className="md:col-span-3 space-y-4">
+          <h3 className="text-green-800 font-bold text-lg flex items-center gap-2">
+            <span role="img" aria-label="tree">
+              🌳
+            </span>{" "}
+            GREENBRIDGE
+          </h3>
+
+          <div className="w-full max-w-xs">
+            <div className="flex items-center border border-green-500 rounded-full overflow-hidden mb-2">
+              <div className="flex items-center justify-center px-3 text-green-500">
+                <FiMail />
+              </div>
+              <div className="h-6 w-[1px] bg-gray-300" />
               <input
                 type="email"
                 placeholder="Enter your email address"
-                className="border-2 border-[#2D8952] rounded-full py-2 pl-10 pr-4 w-full md:max-w-xs"
+                className="w-full px-3 py-2 outline-none text-sm text-gray-700"
               />
             </div>
-            <button className="bg-white text-[#2D8952] rounded-full py-2 px-4 w-full md:max-w-xs border-2 border-gray-500 hover:bg-[#2D8952] hover:text-white transition-colors duration-300">
-              Subscribe
+
+            <button className="relative inline-flex items-center justify-center px-10 py-3 text-sm font-medium text-[#338255] rounded-full group overflow-hidden z-10 bg-transparent border-none w-full">
+              <span
+                className="absolute inset-0 rounded-full p-[2px] bg-gradient-to-r from-[#338255] to-[#A6DD3A] z-0"
+                aria-hidden="true"
+              ></span>
+
+              <span
+                className="absolute inset-0 rounded-full bg-[#fafafa] z-[1]"
+                aria-hidden="true"
+              ></span>
+              <span
+                className="absolute inset-0 rounded-full bg-gradient-to-r from-[#338255] to-[#A6DD3A] z-[2] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 ease-in-out"
+                aria-hidden="true"
+              ></span>
+              <span className="relative z-[3] transition-colors duration-300 ease-in-out group-hover:text-white">
+                Subscribe to Newsletter
+              </span>
             </button>
+          </div>
+          <div className="flex items-center gap-4 pt-2 text-green-800">
+            <FiTwitter className="hover:text-green-600 cursor-pointer" />
+            <FiFacebook className="hover:text-green-600 cursor-pointer" />
+            <FiInstagram className="hover:text-green-600 cursor-pointer" />
+            <FiYoutube className="hover:text-green-600 cursor-pointer" />
+            <FiLinkedin className="hover:text-green-600 cursor-pointer" />
           </div>
         </div>
 
-        {/* Company Links */}
-        <div>
-          <h3 className="text-lg font-semibold mb-4 text-[#2D8952]">Company</h3>
-          <ul className="space-y-2">
+        <div className="md:col-span-1">
+          <h4 className="text-lg font-semibold mb-4">COMPANY</h4>
+          <ul className="space-y-2 text-sm">
             <li>
-              <a
-                href="/about"
-                className="text-gray-600 hover:text-[#2D8952] transition-colors duration-200"
-              >
+              <a href="#" className="hover:underline">
                 About
               </a>
             </li>
-          </ul>
-        </div>
-
-        {/* Help Links */}
-        <div>
-          <h3 className="text-lg font-semibold mb-4 text-[#2D8952]">Help</h3>
-          <ul className="space-y-2">
             <li>
-              <a
-                href="/privacy-policy"
-                className="text-gray-600 hover:text-[#2D8952] transition-colors duration-200"
-              >
-                Privacy Policy
+              <a href="#" className="hover:underline">
+                Features
               </a>
             </li>
             <li>
-              <a
-                href="/support"
-                className="text-gray-600 hover:text-[#2D8952] transition-colors duration-200"
-              >
+              <a href="#" className="hover:underline">
+                Works
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Career
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        {/* Column 3: Help */}
+        <div className="md:col-span-1">
+          <h4 className="text-lg font-semibold mb-4">HELP</h4>
+          <ul className="space-y-2 text-sm">
+            <li>
+              <a href="#" className="hover:underline">
                 Customer Support
               </a>
             </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Delivery Details
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Terms & Conditions
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Privacy Policy
+              </a>
+            </li>
           </ul>
         </div>
-      </div>
 
-      {/* Bottom Section with Social Icons */}
-      <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-gray-200">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-500 text-sm mb-4 md:mb-0">
-            © 2025 GreenBridge. All rights reserved.
-          </p>
-          <div className="flex space-x-4">
-            <a
-              href="#"
-              className="text-gray-500 hover:text-[#2D8952] transition-colors duration-200"
-            >
-              <FaTwitter className="text-xl" />
-            </a>
-            <a
-              href="#"
-              className="text-gray-500 hover:text-[#2D8952] transition-colors duration-200"
-            >
-              <FaFacebook className="text-xl" />
-            </a>
-            <a
-              href="#"
-              className="text-gray-500 hover:text-[#2D8952] transition-colors duration-200"
-            >
-              <FaInstagram className="text-xl" />
-            </a>
-          </div>
+        {/* Column 4: FAQ */}
+        <div className="md:col-span-1">
+          <h4 className="text-lg font-semibold mb-4">FAQ</h4>
+          <ul className="space-y-2 text-sm">
+            <li>
+              <a href="#" className="hover:underline">
+                Account
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Manage Deliveries
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Orders
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:underline">
+                Payments
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
     </footer>
   );
-}
+};
 
 export default Footer;
