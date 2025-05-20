@@ -9,10 +9,10 @@ import { useSelector } from 'react-redux';
 const Header = () => {
   const [user, setUser] = useState(null);
   const location = useLocation();
-  const cartItems = useSelector(state => state.cart.items);
+  const cartItems = useSelector(state => state.cart.cartItems);
   const totalItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-  const storeUser = localStorage.getItem("user") 
+  const storeUser = localStorage.getItem("user")
 
   useEffect(() => {
     const getUser = async () => {

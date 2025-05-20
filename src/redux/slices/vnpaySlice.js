@@ -1,57 +1,39 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { createVnPayPayment, verifyVnPayPayment } from '../../api/vnpayApi';
-import { toast } from 'react-toastify';
 
-// Thunk action để tạo thanh toán VNPay
+// Thunk để tạo giao dịch thanh toán VNPay
 export const createVnPayPaymentThunk = createAsyncThunk(
     'vnpay/createPayment',
     async (paymentData, { rejectWithValue }) => {
         try {
             const response = await createVnPayPayment(paymentData);
-
-            // Kiểm tra cấu trúc response
-            if (!response || !response.success) {
-                return rejectWithValue('Không nhận được phản hồi thành công từ máy chủ');
-            }
-
             return response;
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Lỗi khi tạo thanh toán';
-            toast.error(errorMessage);
-            return rejectWithValue(errorMessage);
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 );
 
-// Thunk action để xác thực thanh toán VNPay
+// Thunk để xác thực thanh toán VNPay
 export const verifyVnPayPaymentThunk = createAsyncThunk(
     'vnpay/verifyPayment',
     async (verifyData, { rejectWithValue }) => {
         try {
             const response = await verifyVnPayPayment(verifyData);
-
-            if (!response || !response.success) {
-                return rejectWithValue('Không nhận được phản hồi thành công từ máy chủ');
-            }
-
             return response;
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Lỗi khi xác thực thanh toán';
-            toast.error(errorMessage);
-            return rejectWithValue(errorMessage);
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 );
 
 const initialState = {
-    paymentLoading: false,
-    paymentError: null,
+    redirectUrl: null,
     paymentData: null,
-    paymentUrl: null,
-    verifyLoading: false,
-    verifyError: null,
-    verifyData: null,
-    paymentStatus: null
+    verificationResult: null,
+    loading: false,
+    error: null,
+    success: false
 };
 
 const vnpaySlice = createSlice({
@@ -59,71 +41,50 @@ const vnpaySlice = createSlice({
     initialState,
     reducers: {
         resetPaymentState: (state) => {
-            state.paymentLoading = false;
-            state.paymentError = null;
+            state.redirectUrl = null;
             state.paymentData = null;
-            state.paymentUrl = null;
+            state.loading = false;
+            state.error = null;
+            state.success = false;
         },
-        resetVerifyState: (state) => {
-            state.verifyLoading = false;
-            state.verifyError = null;
-            state.verifyData = null;
-            state.paymentStatus = null;
-        },
-        resetAllState: () => initialState
+        setVerificationResult: (state, action) => {
+            state.verificationResult = action.payload;
+        }
     },
     extraReducers: (builder) => {
         builder
-            // Xử lý trạng thái tạo thanh toán
+            // Xử lý trạng thái khi tạo giao dịch thanh toán
             .addCase(createVnPayPaymentThunk.pending, (state) => {
-                state.paymentLoading = true;
-                state.paymentError = null;
+                state.loading = true;
+                state.error = null;
             })
             .addCase(createVnPayPaymentThunk.fulfilled, (state, action) => {
-                state.paymentLoading = false;
-                state.paymentData = action.payload;
-
-                // Kiểm tra và gán paymentUrl
-                if (action.payload?.data?.paymentUrl) {
-                    state.paymentUrl = action.payload.data.paymentUrl;
-                } else {
-                    toast.error('Không tìm thấy URL thanh toán');
-                }
-
-                state.paymentError = null;
+                state.loading = false;
+                state.success = action.payload.success;
+                state.paymentData = action.payload.data;
+                state.redirectUrl = action.payload.data?.redirectUrl;
             })
             .addCase(createVnPayPaymentThunk.rejected, (state, action) => {
-                state.paymentLoading = false;
-                state.paymentError = action.payload || 'Lỗi không xác định';
-                toast.error(state.paymentError);
+                state.loading = false;
+                state.error = action.payload || 'Có lỗi xảy ra khi tạo thanh toán VNPay';
             })
 
-            // Xử lý trạng thái xác thực thanh toán
+            // Xử lý trạng thái khi xác thực thanh toán
             .addCase(verifyVnPayPaymentThunk.pending, (state) => {
-                state.verifyLoading = true;
-                state.verifyError = null;
+                state.loading = true;
+                state.error = null;
             })
             .addCase(verifyVnPayPaymentThunk.fulfilled, (state, action) => {
-                state.verifyLoading = false;
-                state.verifyData = action.payload;
-                state.paymentStatus = action.payload.success ? 'success' : 'failed';
-                state.verifyError = null;
-
-                if (state.paymentStatus === 'success') {
-                    toast.success('Thanh toán đã được xác thực thành công!');
-                } else {
-                    toast.error('Xác thực thanh toán thất bại');
-                }
+                state.loading = false;
+                state.success = action.payload.success;
+                state.verificationResult = action.payload.data;
             })
             .addCase(verifyVnPayPaymentThunk.rejected, (state, action) => {
-                state.verifyLoading = false;
-                state.verifyError = action.payload || 'Lỗi không xác định';
-                state.paymentStatus = 'failed';
-                toast.error(state.verifyError);
+                state.loading = false;
+                state.error = action.payload || 'Có lỗi xảy ra khi xác thực thanh toán VNPay';
             });
     }
 });
 
-export const { resetPaymentState, resetVerifyState, resetAllState } = vnpaySlice.actions;
-
-export default vnpaySlice.reducer; 
+export const { resetPaymentState, setVerificationResult } = vnpaySlice.actions;
+export default vnpaySlice.reducer;
