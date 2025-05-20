@@ -17,17 +17,17 @@ const Header = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        if (storeUser && storeUser.id) {
-          const response = await getUserById(storeUser.id);
+          const response = await getUserById(JSON.parse(storeUser).id);
           setUser(response);
-        }
       } catch (error) {
         console.error('Error fetching user:', error);
       }
     };
     getUser();
-  }, [storeUser]);
+  }, []);
+  
 
+  console.log(user)
 
   const isActive = (path) => location.pathname === path;
 

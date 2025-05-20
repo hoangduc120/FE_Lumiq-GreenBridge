@@ -73,7 +73,7 @@ const ContactForm = () => {
 
           {/* Icon and text */}
           <FiSend className="w-5 h-5 relative z-10" />
-          <span className="relative z-10 group-hover:text-white transition-colors duration-500 ease-in-out">
+          <span className="relative z-10 group-hover:text-white transition-colors duration-500 ease-in-out cursor-pointer">
             Send Message
           </span>
         </button>
