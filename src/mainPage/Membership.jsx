@@ -8,7 +8,7 @@ function Membership() {
       <div className="text-2xl text-center mt-15 font-semibold">
         Upgrade your plant to explore more privilege{" "}
       </div>
-      <div className="flex gap-5 justify-center mt-10">
+      <div className="flex gap-5 justify-center my-10">
         <div className="bg-black w-1/3 rounded-2xl p-10">
           <span className="text-white border-2 border-white rounded-2xl p-2 bg-gradient-to-r from-[#6d7e41] to-[#01c722]">
             MOST POPULAR

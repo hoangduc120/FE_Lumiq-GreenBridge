@@ -34,3 +34,16 @@ export const getProductById = async (id) => {
         throw error;
     }
 }
+
+export const getAddressData = async (province, district, ward_street) => {
+    try {
+      const res = await instance.post(`${BASE_URL}/api/product/address`, {
+        province,
+        district,
+        ward_street,
+      });
+      return res.data.data;
+    } catch (err) {
+      return err;
+    }
+  };

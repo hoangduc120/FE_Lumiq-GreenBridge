@@ -51,3 +51,14 @@ export const refreshToken = async () => {
     throw error;
   }
 };
+
+export const sendForgotPasswordEmail = async (email) => {
+  try {
+    const response = await axiosInstance.post('/auth/forgot-password', { email });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
