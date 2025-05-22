@@ -36,7 +36,7 @@ function Sell() {
 
         <div className="bg-white rounded-xl min-h-100 w-2/3 mx-auto mt-10 p-5">
           <p className="text-[#27B074] font-bold text-2xl">Your Products</p>
-          <YourProducts products={products} />
+          <YourProduct products={products} />
           <div className="flex justify-center mt-5">
             <Link
               to="/add-product"

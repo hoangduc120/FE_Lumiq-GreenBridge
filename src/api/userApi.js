@@ -13,3 +13,15 @@ export const getUserById = async (id) => {
     throw error;
   }
 };
+
+export const updateUserById = async (id, data) => {
+  try {
+    const response = await instance.put(`${BASE_URL}/${id}`, data, {
+      withCredentials: true,
+    });
+    return response.data.data.user;
+  } catch (error) {
+    console.error('Error updating user:', error);
+    throw error;
+  }
+};

@@ -11,12 +11,18 @@ import PasswordStrengthBar from "./PasswordStrengthBar";
 import { LoginBg, Logo } from "../assets";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { loginEmail, loginGoogle, register } from "../api/authApi";
+import {
+  loginEmail,
+  loginGoogle,
+  register,
+  sendForgotPasswordEmail,
+} from "../api/authApi";
 
 const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [showForgetPassword, setShowForgetPassword] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,8 +84,8 @@ const AuthPage = () => {
       const response = await loginEmail(email, password);
 
       if (response.status === 200) {
-        const { user, token } = response.data.data;
-        console.log(response.data);
+        const { user, token, refreshToken } = response.data.data;
+        console.log(user);
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("token", JSON.stringify(token));
         toast.success("Login successful!");
@@ -106,6 +112,21 @@ const AuthPage = () => {
     } catch (error) {
       console.error("Error logging in with Google:", error);
       toast.error("Google login failed. Please try again!");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (values, { resetForm }) => {
+    setIsLoading(true);
+    try {
+      const { email } = values;
+      const res = await sendForgotPasswordEmail(email);
+      toast.success("Reset email sent! Please check your inbox.");
+      setIsResetPassword(false);
+      resetForm();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to send reset email.");
     } finally {
       setIsLoading(false);
     }
@@ -162,10 +183,28 @@ const AuthPage = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
-          onSubmit={isSignUp ? signUpWithEmailPassword : signIn}
+          onSubmit={
+            isResetPassword
+              ? handleForgotPassword
+              : isSignUp
+              ? signUpWithEmailPassword
+              : signIn
+          }
         >
           {({ values, errors, touched }) => (
             <Form className="w-full flex flex-col items-center justify-center gap-4 px-4 md:px-12 pt-4 xl:gap-6">
+              {isResetPassword && (
+                <div className="flex items-center justify-start w-full">
+
+                <button
+                  type="button"
+                  className="text-sm mt-2 rounded-md bg-transparent border border-green-600 px-4 py-2 hover:bg-green-600 hover:text-white transition-all duration-150 cursor-pointer"
+                  onClick={() => setIsResetPassword(false)}
+                  >
+                  Back to Login
+                </button>
+                  </div>
+              )}
               <LoginInput
                 name="email"
                 placeHolder="Email Here"
@@ -173,18 +212,22 @@ const AuthPage = () => {
                 type="email"
                 errors={errors.email}
                 touched={touched.email}
-                tabIndex={1}
               />
-              <LoginInput
-                name="password"
-                placeHolder="Password Here"
-                icon={<FaLock className="text-xl text-textColor" />}
-                type="password"
-                errors={errors.password}
-                touched={touched.password}
-                tabIndex={2}
-              />
-              {isSignUp && (
+
+              {!isResetPassword && (
+                <>
+                  <LoginInput
+                    name="password"
+                    placeHolder="Password Here"
+                    icon={<FaLock className="text-xl text-textColor" />}
+                    type="password"
+                    errors={errors.password}
+                    touched={touched.password}
+                  />
+                </>
+              )}
+
+              {isSignUp && !isResetPassword && (
                 <>
                   <LoginInput
                     name="confirm_password"
@@ -193,33 +236,46 @@ const AuthPage = () => {
                     type="password"
                     errors={errors.confirm_password}
                     touched={touched.confirm_password}
-                    tabIndex={3}
                   />
                   <PasswordStrengthBar password={values.password} />
                   <PasswordChecklistComponent password={values.password} />
                 </>
               )}
-              {!isSignUp && showForgetPassword && (
+
+              {!isSignUp && !isResetPassword && showForgetPassword && (
                 <p className="text-black text-sm">
                   Forgot your password?{" "}
                   <motion.button
                     {...buttonClick}
-                    className="text-blue-300 underline cursor-pointer bg-transparent"
-                    onClick={() => navigate("/reset-password")}
                     type="button"
+                    onClick={() => setIsResetPassword(true)}
+                    className="text-blue-300 underline bg-transparent"
                   >
                     <span className="text-[#3A5B22] font-bold">Click here</span>
                   </motion.button>
                 </p>
               )}
+
+              {isResetPassword && (
+                <p className="text-black text-sm text-center">
+                  Enter your email and we’ll send you reset instructions.
+                </p>
+              )}
+
+              {/* Submit Button */}
               <motion.button
                 {...buttonClick}
                 type="submit"
                 className="w-full px-4 py-2 rounded-md bg-green-600 cursor-pointer text-white text-xl capitalize hover:bg-green-700 transition-all duration-150"
                 disabled={isLoading}
-                tabIndex={isSignUp ? 4 : 3}
               >
-                {isLoading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
+                {isLoading
+                  ? "Loading..."
+                  : isResetPassword
+                  ? "Send Reset Email"
+                  : isSignUp
+                  ? "Sign Up"
+                  : "Sign In"}
               </motion.button>
             </Form>
           )}

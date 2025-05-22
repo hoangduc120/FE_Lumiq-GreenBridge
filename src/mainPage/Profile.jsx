@@ -1,10 +1,19 @@
 import { Avatar, Button, DatePicker, Upload, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { IoMdReturnLeft, IoMdMail } from "react-icons/io";
+import {
+  FaUser,
+  FaTransgender,
+  FaPhoneAlt,
+  FaUserTag,
+  FaBirthdayCake,
+  FaMapMarkerAlt,
+} from "react-icons/fa";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import * as yup from "yup";
 import dayjs from "dayjs";
+import { toast } from "react-toastify";
 
 // Yup schema cho profile
 const profileSchema = yup.object().shape({
@@ -52,7 +61,6 @@ function Profile() {
       setEditUser(userData);
     } catch (error) {
       console.log(error);
-      
     }
   };
 
@@ -75,6 +83,7 @@ function Profile() {
       await axios.put("http://localhost:5000/user/profile", editUser, {
         withCredentials: true,
       });
+      toast.success("Profile updated successfully!");
       setUser(editUser);
       setEditing(false);
     } catch (error) {
@@ -85,11 +94,6 @@ function Profile() {
   useEffect(() => {
     fetchUserProfile();
   }, []);
-
-  const handleEdit = () => {
-    setEditUser(user);
-    setEditing(true);
-  };
 
   const handleSave = () => updateUserProfile();
 
@@ -143,17 +147,18 @@ function Profile() {
 
   return (
     <>
-      <Link to={"/"}>
+      <Link to="/">
         <span className="border-2 flex gap-1 text-[#2B8B35] p-2 rounded-full w-25 ml-40 mt-5">
           <IoMdReturnLeft />
-          <p> Go back</p>
+          <p>Go back</p>
         </span>
       </Link>
 
-      <div className="container mx-auto mt-10 max-w-9/12">
+      <div className="container mx-auto mt-10 max-w-6xl">
         <h2 className="text-[#3E435D] text-3xl font-semibold">
-          Welcome, {user.nickName}{" "}
+          Welcome, {user.nickName || user.fullName}
         </h2>
+
         <div className="flex justify-between items-end">
           <div className="flex gap-4 items-center">
             <Upload
@@ -186,6 +191,7 @@ function Profile() {
               <p className="text-[#3E435D]">{user.email}</p>
             </div>
           </div>
+
           {editing ? (
             <div className="flex gap-2">
               <Button type="primary" onClick={handleSave}>
@@ -194,16 +200,18 @@ function Profile() {
               <Button onClick={handleCancel}>Cancel</Button>
             </div>
           ) : (
-            <Button type="primary" onClick={handleEdit}>
+            <Button type="primary" onClick={() => setEditing(true)}>
               Edit
             </Button>
           )}
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-          {/* Left column */}
           <div className="flex flex-col gap-6">
             <div>
-              <label className="block text-lg mb-1">Full name</label>
+              <label className="block text-lg mb-1 flex items-center gap-2">
+                <FaUser className="text-[#2B8B35]" /> Full name
+              </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? (
                   <input {...inputProps("fullName")} />
@@ -218,7 +226,9 @@ function Profile() {
               )}
             </div>
             <div>
-              <label className="block text-lg mb-1">Gender</label>
+              <label className="block text-lg mb-1 flex items-center gap-2">
+                <FaTransgender className="text-[#2B8B35]" /> Gender
+              </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? (
                   <select
@@ -242,7 +252,9 @@ function Profile() {
               )}
             </div>
             <div>
-              <label className="block text-lg mb-1">Phone</label>
+              <label className="block text-lg mb-1 flex items-center gap-2">
+                <FaPhoneAlt className="text-[#2B8B35]" /> Phone
+              </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? <input {...inputProps("phone")} /> : user.phone}
               </div>
@@ -253,10 +265,12 @@ function Profile() {
               )}
             </div>
           </div>
-          {/* Right column */}
+
           <div className="flex flex-col gap-6">
             <div>
-              <label className="block text-lg mb-1">Nick name</label>
+              <label className="block text-lg mb-1 flex items-center gap-2">
+                <FaUserTag className="text-[#2B8B35]" /> Nick name
+              </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? (
                   <input {...inputProps("nickName")} />
@@ -271,7 +285,9 @@ function Profile() {
               )}
             </div>
             <div>
-              <label className="block text-lg mb-1">Year of birth</label>
+              <label className="block text-lg mb-1 flex items-center gap-2">
+                <FaBirthdayCake className="text-[#2B8B35]" /> Year of birth
+              </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? (
                   <DatePicker
@@ -301,7 +317,9 @@ function Profile() {
               )}
             </div>
             <div>
-              <label className="block text-lg mb-1">Address</label>
+              <label className="block text-lg mb-1 flex items-center gap-2">
+                <FaMapMarkerAlt className="text-[#2B8B35]" /> Address
+              </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? <input {...inputProps("address")} /> : user.address}
               </div>
@@ -314,7 +332,9 @@ function Profile() {
           </div>
         </div>
         <div className="mt-8 flex flex-col gap-4">
-          <p className="text-xl">My email Address</p>
+          <p className="text-xl flex items-center gap-2">
+            <IoMdMail className="text-[#2B8B35]" /> My email address
+          </p>
           <div className="flex gap-2 items-center">
             <span className="border-1 bg-blue-100 text-[#4182F9] p-2 rounded-full">
               <IoMdMail className="text-[#4182F9] size-6" />
@@ -328,7 +348,9 @@ function Profile() {
                   placeholder="Enter your email"
                 />
               ) : (
-                user.email
+                <div className="bg-white px-4 py-3 rounded-md border shadow-sm text-[#3E435D]">
+                  {editUser.email || "No email"}
+                </div>
               )}
             </div>
             {editing && fieldErrors.email && (
