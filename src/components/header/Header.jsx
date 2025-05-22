@@ -4,15 +4,18 @@ import { getUserById } from "../../api/userApi";
 import { FaShoppingCart } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 
 const Header = () => {
   const [user, setUser] = useState(null);
   const location = useLocation();
-  const cartItems = useSelector(state => state.cart.items);
-  const totalItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const cartItems = useSelector((state) => state.cart.items);
+  const totalItemsCount = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
 
-  const storeUser = localStorage.getItem("user") 
+  const storeUser = localStorage.getItem("user");
 
   useEffect(() => {
     const getUser = async () => {
@@ -22,12 +25,11 @@ const Header = () => {
           setUser(response);
         }
       } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error("Error fetching user:", error);
       }
     };
     getUser();
   }, [storeUser]);
-
 
   const isActive = (path) => location.pathname === path;
 
@@ -51,9 +53,9 @@ const Header = () => {
 
       <div className="w-full flex items-center justify-between px-60 py-4">
         <div className="flex items-center space-x-4">
-          <span className="text-green-700 text-2xl font-semibold">
+          <Link to="/" className="text-green-700 text-2xl font-semibold">
             GreenBridge
-          </span>
+          </Link>
 
           <Link to="/chatbot" className="flex items-center gap-2 relative ml-4">
             <div className="relative w-9 h-9">
@@ -122,28 +124,31 @@ const Header = () => {
         <nav className="hidden md:flex items-center space-x-6">
           <Link
             to="/"
-            className={`px-3 py-1 rounded-full font-medium ${isActive("/")
-              ? "bg-green-500 text-white"
-              : "text-black hover:text-green-600"
-              }`}
+            className={`px-3 py-1 rounded-full font-medium ${
+              isActive("/")
+                ? "bg-green-500 text-white"
+                : "text-black hover:text-green-600"
+            }`}
           >
             Home
           </Link>
           <Link
             to="/sell"
-            className={`px-3 py-1 rounded-full font-medium ${isActive("/sell")
-              ? "bg-green-500 text-white"
-              : "text-black hover:text-green-600"
-              }`}
+            className={`px-3 py-1 rounded-full font-medium ${
+              isActive("/sell")
+                ? "bg-green-500 text-white"
+                : "text-black hover:text-green-600"
+            }`}
           >
             Sell
           </Link>
           <Link
             to="/about"
-            className={`px-3 py-1 rounded-full font-medium ${isActive("/about")
-              ? "bg-green-500 text-white"
-              : "text-black hover:text-green-600"
-              }`}
+            className={`px-3 py-1 rounded-full font-medium ${
+              isActive("/about")
+                ? "bg-green-500 text-white"
+                : "text-black hover:text-green-600"
+            }`}
           >
             About us
           </Link>
@@ -156,7 +161,9 @@ const Header = () => {
               placeholder="Search for products..."
               className="rounded-full py-2 px-4 bg-[#f7f7f7] border border-gray-200 focus:outline-none w-48 sm:w-64"
             />
-            <span className="absolute right-4 top-2.5 text-gray-400"><FaSearch /></span>
+            <span className="absolute right-4 top-2.5 text-gray-400">
+              <FaSearch />
+            </span>
           </div>
 
           <Link

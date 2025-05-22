@@ -2,10 +2,9 @@ import React from "react";
 import { FaLeaf, FaSeedling, FaUsers } from "react-icons/fa";
 import { MdSmartToy } from "react-icons/md";
 
-
 function AboutUs() {
   return (
-    <div className="min-h-screen p-8 md:p-16 text-white bg-gradient-to-br from-[#b6e67c] to-[#5fb537]">
+    <div className="min-h-screen p-8 md:p-16 text-white bg-gradient-to-br from-[#85b747] to-[#49b219]">
       <div className="text-center mb-12 px-auto mx-auto">
         <h1 className="text-5xl font-extrabold mb-4 drop-shadow-lg text-[#297F4E]">
           <span className="text-black">About</span> GreenBridge
@@ -70,7 +69,6 @@ function AboutUs() {
           <FaLeaf className="text-4xl mx-2" />
         </div>
       </div>
-
     </div>
   );
 }

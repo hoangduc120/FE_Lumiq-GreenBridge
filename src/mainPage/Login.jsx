@@ -63,7 +63,8 @@ const AuthPage = () => {
       }
     } catch (error) {
       const errorMessage =
-        error.response?.data?.message || "Registration failed. Please try again!";
+        error.response?.data?.message ||
+        "Registration failed. Please try again!";
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -77,8 +78,10 @@ const AuthPage = () => {
       const response = await loginEmail(email, password);
 
       if (response.status === 200) {
-        const { user, token, refreshToken } = response.data;
+        const { user, token } = response.data.data;
+        console.log(response.data);
         localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", JSON.stringify(token));
         toast.success("Login successful!");
         navigate("/", { replace: true });
       } else {

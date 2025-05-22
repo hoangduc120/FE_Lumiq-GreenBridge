@@ -10,6 +10,7 @@ import ProductDetail from "../mainPage/ProductDetail";
 import RatingAndReview from "../mainPage/RatingAndReview";
 import Cart from "../mainPage/Cart";
 import Membership from "../mainPage/Membership";
+import Sell from "../mainPage/Sell";
 
 export default function AppRoutes() {
   return (
@@ -22,6 +23,7 @@ export default function AppRoutes() {
         <Route path="/rating-review" element={<RatingAndReview />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/membership" element={<Membership />} />
+        <Route path="/sell" element={<Sell />} />
       </Route>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/profile" element={<Profile />}></Route>
