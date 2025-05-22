@@ -87,6 +87,7 @@ const AuthPage = () => {
         const { user, token, refreshToken } = response.data.data;
         console.log(user);
         localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", JSON.stringify(token));
         toast.success("Login successful!");
         navigate("/", { replace: true });
       } else {
