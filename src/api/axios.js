@@ -8,7 +8,7 @@ axios.defaults.withCredentials = true;
 const instance = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
-  timeout: 10000, // Timeout 10s
+  timeout: 5000, // Giảm timeout xuống 5 giây
   headers: {
     'Content-Type': 'application/json'
   }
@@ -31,7 +31,9 @@ const processQueue = (error, token = null) => {
 
 instance.interceptors.request.use(
   (config) => {
-    console.log('API Request:', config.method.toUpperCase(), config.url, config.data);
+    // Chỉ log trong development
+    if (process.env.NODE_ENV === 'development') {
+    }
 
     const token = Cookies.get('accessToken');
     if (token) {
@@ -47,19 +49,27 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    console.log('API Response:', response.status, response.data);
+    // Chỉ log trong development
+    if (process.env.NODE_ENV === 'development') {
+    }
     return response;
   },
   async (error) => {
-    console.error('API Response Error:',
-      error.response ? {
-        status: error.response.status,
-        data: error.response.data
-      } : error.message
-    );
-
     const originalRequest = error.config;
 
+    // Handle timeout errors đơn giản
+    if (error.code === 'ECONNABORTED') {
+      toast.error('Kết nối chậm. Vui lòng thử lại!');
+      return Promise.reject(error);
+    }
+
+    // Handle network errors
+    if (error.message === 'Network Error') {
+      toast.error('Lỗi kết nối. Vui lòng kiểm tra mạng!');
+      return Promise.reject(error);
+    }
+
+    // Handle 401 errors (authentication)
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
@@ -83,10 +93,10 @@ instance.interceptors.response.use(
         return instance(originalRequest);
       } catch (refreshError) {
         console.error('Refresh token failed:', refreshError);
-        toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        toast.error('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         localStorage.removeItem('user');
         Cookies.remove('accessToken');
-        Cookies.removeItem('refreshToken');
+        Cookies.remove('refreshToken');
         isRefreshing = false;
         processQueue(refreshError);
         window.location.href = '/login';
@@ -94,13 +104,18 @@ instance.interceptors.response.use(
       }
     }
 
+    // Handle other errors đơn giản
     if (error.response) {
-      const errorMessage = error.response.data?.message || 'Đã xảy ra lỗi khi gọi API';
-      toast.error(errorMessage);
-    } else if (error.request) {
-      toast.error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.');
-    } else {
-      toast.error('Đã xảy ra lỗi khi thiết lập yêu cầu.');
+      const status = error.response.status;
+      const errorMessage = error.response.data?.message || 'Lỗi API';
+
+      // Chỉ show toast cho một số lỗi quan trọng
+      if (status === 500) {
+        toast.error('Lỗi máy chủ!');
+      } else if (status === 403) {
+        toast.error('Không có quyền!');
+      }
+      // Các lỗi khác sẽ được handle ở component level
     }
 
     return Promise.reject(error);

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { verifyMomoPaymentThunk, resetPaymentState as resetMomoState } from '../redux/slices/momoSlice';
 import { verifyVnPayPaymentThunk, resetPaymentState as resetVnpayState } from '../redux/slices/vnpaySlice';
-import { cartActions } from '../redux/slices/cartSlice';
+import { clearCart } from '../redux/slices/cartSlice';
 
 const PaymentResult = () => {
     const location = useLocation();
@@ -90,7 +90,7 @@ const PaymentResult = () => {
     useEffect(() => {
         if ((momoSuccess && momoResult) || (vnpaySuccess && vnpayResult)) {
             // Xóa giỏ hàng khi thanh toán thành công
-            dispatch(cartActions.clearCart());
+            dispatch(clearCart());
         }
     }, [momoSuccess, momoResult, vnpaySuccess, vnpayResult, dispatch]);
 
