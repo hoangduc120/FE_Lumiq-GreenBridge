@@ -23,6 +23,7 @@ const AuthPage = () => {
   const [showForgetPassword, setShowForgetPassword] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isResetPassword, setIsResetPassword] = useState(false);
+  const [showSpinner, setShowSpinner] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +32,20 @@ const AuthPage = () => {
       navigate("/", { replace: true });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    let timer;
+    if (isLoading) {
+      const delay = Math.floor(Math.random() * (2000 - 1000 + 1)) + 1000;
+      timer = setTimeout(() => {
+        setShowSpinner(true);
+      }, delay);
+    } else {
+      setShowSpinner(false); 
+    }
+
+    return () => clearTimeout(timer); 
+  }, [isLoading]);
 
   const initialValues = {
     email: "",
@@ -103,16 +118,13 @@ const AuthPage = () => {
     }
   };
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = () => {
     setIsLoading(true);
     try {
-      await loginGoogle();
-      toast.success("Google login successful!");
-      navigate("/", { replace: true });
+      loginGoogle();
     } catch (error) {
-      console.error("Error logging in with Google:", error);
+      console.error("Error initiating Google login:", error);
       toast.error("Google login failed. Please try again!");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -134,6 +146,12 @@ const AuthPage = () => {
 
   return (
     <div className="w-screen h-screen relative overflow-hidden flex">
+      {showSpinner && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="w-12 h-12 border-t-4 border-b-4 border-green-600 rounded-full animate-spin"></div>
+        </div>
+      )}
+
       <img
         src={LoginBg}
         className="w-full h-full object-cover absolute top-0 left-0"
@@ -195,15 +213,14 @@ const AuthPage = () => {
             <Form className="w-full flex flex-col items-center justify-center gap-4 px-4 md:px-12 pt-4 xl:gap-6">
               {isResetPassword && (
                 <div className="flex items-center justify-start w-full">
-
-                <button
-                  type="button"
-                  className="text-sm mt-2 rounded-md bg-transparent border border-green-600 px-4 py-2 hover:bg-green-600 hover:text-white transition-all duration-150 cursor-pointer"
-                  onClick={() => setIsResetPassword(false)}
+                  <button
+                    type="button"
+                    className="text-sm mt-2 rounded-md bg-transparent border border-green-600 px-4 py-2 hover:bg-green-600 hover:text-white transition-all duration-150 cursor-pointer"
+                    onClick={() => setIsResetPassword(false)}
                   >
-                  Back to Login
-                </button>
-                  </div>
+                    Back to Login
+                  </button>
+                </div>
               )}
               <LoginInput
                 name="email"

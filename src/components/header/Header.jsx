@@ -8,6 +8,8 @@
   import { logout } from "../../api/authApi";
   import { MdLogout } from "react-icons/md";
   // import Avatar from "../../assets/images/avatar.png";
+  import axiosInstance from "../../api/axios";
+import { toast } from "react-toastify";
 
   const Header = () => {
     const [user, setUser] = useState(null);
@@ -21,20 +23,49 @@
       0
     );
 
-    const storeUser = localStorage.getItem("user");
-
     useEffect(() => {
-      const getUser = async () => {
-        if (!storeUser) return
-        try {
-          const response = await getUserById(JSON.parse(storeUser).id);
-          setUser(response);
-        } catch (error) {
-          console.error("Error fetching user:", error);
+      const fetchUser = async () => {
+        const storedUser = localStorage.getItem('user');
+        const params = new URLSearchParams(location.search);
+        const accessToken = params.get('accessToken');
+    
+        let userData = null;
+    
+        if (accessToken) {
+          try {
+            const response = await axiosInstance.get('/user/profile/me', {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            userData = response.data.data.user;
+            localStorage.setItem('user', JSON.stringify(userData));
+            localStorage.setItem('token', accessToken);
+            window.history.replaceState({}, document.title, '/');
+            toast.success("Google login successful!");
+          } catch (err) {
+            console.error('Error fetching user from Google login:', err);
+            toast.error("Google login failed. Please try again!");
+          }
+        } else if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            const response = await getUserById(parsedUser.id);
+            userData = response;
+          } catch (err) {
+            console.error('Error fetching user from localStorage:', err);
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+          }
+        }
+    
+        if (userData) {
+          setUser(userData);
+        } else {
+          setUser(null);
         }
       };
-      getUser();
-    }, []);
+    
+      fetchUser();
+    }, [location.search]);
 
     const handleLogout = async () => {
       await logout();
@@ -217,7 +248,7 @@
 
                       <button
                         onClick={handleLogout}
-                        className="flex items-center w-full gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-800 hover:text-green-700 transition"
+                        className="flex items-center w-full gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-800 hover:text-green-700 transition cursor-pointer"
                       >
                         <MdLogout className="text-xl" />
                         <span className="text-base">Sign Out</span>

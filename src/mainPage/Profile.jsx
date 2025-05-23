@@ -46,7 +46,6 @@ function Profile() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [avatarUploading, setAvatarUploading] = useState(false);
 
-  // Lấy profile từ API /user/profile
   const fetchUserProfile = async () => {
     try {
       const res = await axios.get("http://localhost:5000/user/profile", {
@@ -64,7 +63,6 @@ function Profile() {
     }
   };
 
-  // Cập nhật profile qua API /user/profile (PUT)
   const updateUserProfile = async () => {
     setError("");
     setFieldErrors({});
@@ -99,7 +97,6 @@ function Profile() {
 
   const handleCancel = () => setEditing(false);
 
-  // Hàm chung cho input
   const handleInputChange = (field) => (e) => {
     setEditUser({ ...editUser, [field]: e.target.value });
   };
@@ -137,7 +134,6 @@ function Profile() {
     }
   };
 
-  // Các props dùng chung cho input
   const inputProps = (field) => ({
     className:
       "w-full bg-transparent outline-none text-xl text-[#3E435D] placeholder:text-gray-400",
