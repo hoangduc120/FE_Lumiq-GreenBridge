@@ -13,6 +13,7 @@ import {
   selectCartLoading,
   addToCart,
   removeFromCart,
+  removeMultipleFromCart,
   fetchCart,
   selectCartIsFetched,
 } from '../redux/slices/cartSlice';
@@ -48,7 +49,7 @@ const Cart = () => {
     if (user && !cartIsFetched) {
       dispatch(fetchCart());
     }
-  }, [dispatch]); 
+  }, [dispatch]);
 
   const showModal = () => setIsModalOpen(true);
   const handleOk = () => {
@@ -81,10 +82,9 @@ const Cart = () => {
       }
     };
 
-    // Delay animation để tránh conflict
     const timeoutId = setTimeout(animateElements, 100);
     return () => clearTimeout(timeoutId);
-  }, []); // Chỉ chạy 1 lần khi mount
+  }, []);
 
   useEffect(() => {
     const animateContainer = () => {
@@ -103,12 +103,10 @@ const Cart = () => {
       }
     };
 
-    // Delay animation để tránh conflict
     const timeoutId = setTimeout(animateContainer, 200);
     return () => clearTimeout(timeoutId);
-  }, []); // Chỉ chạy 1 lần khi mount
+  }, []);
 
-  // Toggle item selection
   const toggleSelectItem = (id) => {
     setSelectedItems((prev) =>
       prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
@@ -141,6 +139,7 @@ const Cart = () => {
     }
   };
 
+
   // Calculate total price of selected items
   const calculateTotalPrice = useMemo(() => {
     return cart.reduce((total, item) => {
@@ -160,7 +159,6 @@ const Cart = () => {
 
     try {
       if (user) {
-        // For server cart, we need to add the difference
         const currentItem = cart.find(item => item.productId._id === itemId);
         const currentQuantity = currentItem?.quantity || 0;
         const quantityDifference = newQuantity - currentQuantity;
@@ -170,13 +168,16 @@ const Cart = () => {
             productId: itemId,
             quantity: quantityDifference
           })).unwrap();
+        } else if (quantityDifference < 0) {
+          await dispatch(removeFromCart(itemId)).unwrap();
+          await dispatch(addToCart({
+            productId: itemId,
+            quantity: newQuantity
+          })).unwrap();
         }
-        // Note: Backend doesn't seem to have update quantity endpoint
-        // You might need to add this to your backend
       } else {
-        // For local cart, we would need a local cart action
+        toast.warn('Local cart update not implemented');
       }
-      toast.success('Đã cập nhật số lượng sản phẩm');
     } catch (error) {
       toast.error('Có lỗi xảy ra khi cập nhật số lượng');
     }
@@ -186,7 +187,7 @@ const Cart = () => {
   const decreaseQuantity = (itemId) => {
     const item = cart.find((item) => getItemId(item) === itemId);
     if (!item) {
-      console.error('Item not found in cart');
+      toast.error('Item not found in cart');
       return;
     }
 
@@ -206,7 +207,6 @@ const Cart = () => {
         await dispatch(removeFromCart(itemId)).unwrap();
       } else {
       }
-      toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
     } catch (error) {
       toast.error('Có lỗi xảy ra khi xóa sản phẩm');
     }
@@ -218,27 +218,48 @@ const Cart = () => {
     setLoading(false);
   };
 
-  // Proceed to confirmation
-  const handleProceedToPayment = () => {
+  // Proceed to confirmation - Updated với logic xóa selected items
+  const handleProceedToPayment = async () => {
     if (selectedItems.length === 0) {
       toast.error('Vui lòng chọn ít nhất một sản phẩm');
       return;
     }
 
-    const selectedProducts = cart
-      .map(item => getItemDetails(item))
-      .filter(item => selectedItems.includes(item.id));
+    try {
+      setLoading(true);
 
-    const orderData = {
-      id: `ORDER_${Date.now()}`,
-      items: selectedProducts,
-      totalAmount: calculateTotalPrice + 20000, // Including shipping fee
-      shippingAddress: {},
-      shippingFee: 20000,
-      createdAt: new Date().toISOString(),
-    };
+      const selectedProducts = cart
+        .map(item => getItemDetails(item))
+        .filter(item => selectedItems.includes(item.id));
 
-    navigate('/payment', { state: { orderData } });
+      const orderData = {
+        id: `ORDER_${Date.now()}`,
+        items: selectedProducts,
+        totalAmount: calculateTotalPrice + 20000, // Including shipping fee
+        shippingAddress: {},
+        shippingFee: 20000,
+        createdAt: new Date().toISOString(),
+      };
+
+      // Xóa các selected items khỏi cart trước khi navigate
+      if (user && selectedItems.length > 0) {
+        console.log('Đang xóa selected items khỏi cart:', selectedItems);
+        await dispatch(removeMultipleFromCart(selectedItems)).unwrap();
+        toast.success(`Đã xóa ${selectedItems.length} sản phẩm khỏi giỏ hàng`);
+
+        // Reset selected items sau khi xóa thành công
+        setSelectedItems([]);
+      }
+
+      // Navigate to payment page
+      navigate('/payment', { state: { orderData } });
+
+    } catch (error) {
+      console.error('Lỗi khi xử lý thanh toán:', error);
+      toast.error('Có lỗi xảy ra khi xử lý đơn hàng');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!cart || cart.length === 0) {
@@ -375,10 +396,10 @@ const Cart = () => {
           <div className="w-full flex justify-center">
             <button
               onClick={handleProceedToPayment}
-              disabled={cartLoading}
+              disabled={cartLoading || loading}
               className="w-auto bg-green-500 hover:bg-green-600 text-white rounded-lg p-2 disabled:opacity-50"
             >
-              {cartLoading ? 'Đang xử lý...' : 'Xác nhận đơn hàng'}
+              {cartLoading || loading ? 'Đang xử lý...' : 'Xác nhận đơn hàng'}
             </button>
           </div>
         </div>
