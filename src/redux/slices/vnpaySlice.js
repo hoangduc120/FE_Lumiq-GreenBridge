@@ -62,7 +62,7 @@ const vnpaySlice = createSlice({
                 state.loading = false;
                 state.success = action.payload.success;
                 state.paymentData = action.payload.data;
-                state.redirectUrl = action.payload.data?.redirectUrl;
+                state.redirectUrl = action.payload.data?.paymentUrl;
             })
             .addCase(createVnPayPaymentThunk.rejected, (state, action) => {
                 state.loading = false;

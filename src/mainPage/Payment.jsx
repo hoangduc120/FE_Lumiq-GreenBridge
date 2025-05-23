@@ -4,27 +4,24 @@ import { useSelector, useDispatch } from 'react-redux';
 import { createMomoPaymentThunk } from '../redux/slices/momoSlice';
 import { createVnPayPaymentThunk } from '../redux/slices/vnpaySlice';
 import { setCurrentOrder } from '../redux/slices/orderSlice';
-import { cartActions } from '../redux/slices/cartSlice';
+import { clearCart, fetchCart } from '../redux/slices/cartSlice';
 import StepProgressBar from '../utils/ProgressBar';
 import moment from 'moment';
-import { Empty } from 'antd';
-import { BiEdit } from 'react-icons/bi';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import Lottie from 'lottie-react';
 import Edit from '../animations/Edit.json';
 import gsap from 'gsap';
-import { motion } from 'framer-motion';
-import { buttonClick } from '../animations';
+
 
 const Payment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading: momoLoading, error: momoError, paymentUrl: momoPaymentUrl } = useSelector(
+  const { loading: momoLoading, error: momoError, paymentUrl: momoPaymentUrl, success: momoSuccess, verificationResult: momoResult } = useSelector(
     (state) => state.momo
   );
-  const { loading: vnpayLoading, error: vnpayError, redirectUrl: vnpayRedirectUrl } = useSelector(
+  const { loading: vnpayLoading, error: vnpayError, redirectUrl: vnpayRedirectUrl, success: vnpaySuccess, verificationResult: vnpayResult } = useSelector(
     (state) => state.vnpay
   );
 
@@ -81,6 +78,10 @@ const Payment = () => {
     setIsLoading(momoLoading || vnpayLoading);
   }, [momoLoading, vnpayLoading]);
 
+  // Debug useEffect để kiểm tra tất cả payment states
+  useEffect(() => {
+  }, [momoPaymentUrl, vnpayRedirectUrl, momoLoading, vnpayLoading, momoError, vnpayError, momoSuccess, vnpaySuccess]);
+
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
   };
@@ -93,11 +94,26 @@ const Payment = () => {
 
     setError(null);
 
+    // Lấy userId từ localStorage
+    const userFromStorage = localStorage.getItem('user');
+    let userId = null;
+
+    if (userFromStorage) {
+      try {
+        const userData = JSON.parse(userFromStorage);
+        userId = userData.id;
+      } catch (error) {
+        console.error('Lỗi parse user data:', error);
+      }
+    }
+
     const paymentData = {
       amount: orderData.totalAmount,
       orderId: orderData.id,
+      userId: userId, // Thêm userId
       items: orderData.items,
     };
+
 
     if (paymentMethod === 'momo') {
       dispatch(createMomoPaymentThunk(paymentData));
@@ -170,6 +186,22 @@ const Payment = () => {
       { opacity: 1, x: 0, duration: 0.5, stagger: 0.2, ease: 'power3.out' }
     );
   }, []);
+
+  // Xử lý khi thanh toán thành công
+  useEffect(() => {
+    if ((momoSuccess && momoResult) || (vnpaySuccess && vnpayResult)) {
+      // Refetch cart từ backend để đồng bộ với việc xóa sản phẩm đã thanh toán
+      dispatch(fetchCart())
+        .then(() => {
+          console.log('Đã cập nhật giỏ hàng sau thanh toán thành công');
+        })
+        .catch((error) => {
+          console.error('Lỗi khi cập nhật giỏ hàng:', error);
+          // Fallback: clear cart local nếu không fetch được
+          dispatch(clearCart());
+        });
+    }
+  }, [momoSuccess, momoResult, vnpaySuccess, vnpayResult, dispatch]);
 
   if (!orderData && !error) {
     return (

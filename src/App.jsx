@@ -1,11 +1,14 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "./mainPage/homePage";
-import LoginPage from "./mainPage/Login";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { Slide, ToastContainer } from "react-toastify";
-import AboutUs from "./mainPage/AboutUs";
 import AppRoutes from "./routes";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+  }, [dispatch]);
+
   return (
     <div>
       <AppRoutes />
