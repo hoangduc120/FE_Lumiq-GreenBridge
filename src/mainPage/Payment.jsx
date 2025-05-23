@@ -187,17 +187,14 @@ const Payment = () => {
     );
   }, []);
 
-  // Xử lý khi thanh toán thành công
   useEffect(() => {
     if ((momoSuccess && momoResult) || (vnpaySuccess && vnpayResult)) {
-      // Refetch cart từ backend để đồng bộ với việc xóa sản phẩm đã thanh toán
       dispatch(fetchCart())
         .then(() => {
           console.log('Đã cập nhật giỏ hàng sau thanh toán thành công');
         })
         .catch((error) => {
           console.error('Lỗi khi cập nhật giỏ hàng:', error);
-          // Fallback: clear cart local nếu không fetch được
           dispatch(clearCart());
         });
     }

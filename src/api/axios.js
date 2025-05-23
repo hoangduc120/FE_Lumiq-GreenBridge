@@ -42,7 +42,6 @@ instance.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('API Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -92,7 +91,6 @@ instance.interceptors.response.use(
         processQueue(null);
         return instance(originalRequest);
       } catch (refreshError) {
-        console.error('Refresh token failed:', refreshError);
         toast.error('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         localStorage.removeItem('user');
         Cookies.remove('accessToken');

@@ -33,15 +33,12 @@ const PaymentResult = () => {
     useEffect(() => {
         const verifyPayment = async () => {
             try {
-                // Lấy loại thanh toán và dữ liệu từ query params
                 const queryParams = new URLSearchParams(location.search);
                 const path = location.pathname;
 
-                // Xác định phương thức thanh toán từ pathname
                 if (path.includes('momo-return')) {
                     setPaymentMethod('momo');
 
-                    // Tạo dữ liệu để xác thực thanh toán MoMo
                     const verifyData = {
                         orderId: queryParams.get('orderId'),
                         requestId: queryParams.get('requestId'),
@@ -51,18 +48,15 @@ const PaymentResult = () => {
                         throw new Error('Thiếu thông tin xác thực thanh toán MoMo');
                     }
 
-                    // Gọi action xác thực thanh toán MoMo
                     dispatch(verifyMomoPaymentThunk(verifyData));
                 } else if (path.includes('vnpay-return')) {
                     setPaymentMethod('vnpay');
 
-                    // Đối với VNPay, chúng ta chỉ cần chuyển toàn bộ query params đến API xác thực
                     const params = {};
                     queryParams.forEach((value, key) => {
                         params[key] = value;
                     });
 
-                    // Gọi action xác thực thanh toán VNPay
                     dispatch(verifyVnPayPaymentThunk(params));
                 } else {
                     throw new Error('Không xác định được phương thức thanh toán');

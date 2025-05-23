@@ -139,6 +139,7 @@ const Cart = () => {
     }
   };
 
+
   // Calculate total price of selected items
   const calculateTotalPrice = useMemo(() => {
     return cart.reduce((total, item) => {
@@ -186,7 +187,7 @@ const Cart = () => {
   const decreaseQuantity = (itemId) => {
     const item = cart.find((item) => getItemId(item) === itemId);
     if (!item) {
-      console.error('Item not found in cart');
+      toast.error('Item not found in cart');
       return;
     }
 
