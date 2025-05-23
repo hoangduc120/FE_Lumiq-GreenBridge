@@ -12,9 +12,11 @@ import Cart from "../mainPage/Cart";
 import Payment from "../mainPage/Payment";
 import PaymentResult from "../mainPage/PaymentResult";
 import Membership from "../mainPage/Membership";
-import BlogEditor from "../mainPage/BlogEditor";
-import BlogDetail from "../mainPage/BlogDetail";
-import BlogList from "../mainPage/BlogList";
+import BlogEditor from "../blog/BlogEditor";
+import BlogDetail from "../blog/BlogDetail";
+import BlogList from "../blog/BlogList";
+import ManageBlog from "../blog/ManageBlog";
+import EditBlog from "../blog/EditBlog";
 export default function AppRoutes() {
   return (
     <Routes>
@@ -31,7 +33,9 @@ export default function AppRoutes() {
         <Route path="/membership" element={<Membership />} />
         <Route path="/blog" element={<BlogEditor />} />
         <Route path="/blog/:id" element={<BlogDetail />} />
+        <Route path="/blog/edit/:id" element={<EditBlog />} />
         <Route path="/blogs" element={<BlogList />} />
+        <Route path="/manage-blog" element={<ManageBlog />} />
       </Route>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/profile" element={<Profile />}></Route>

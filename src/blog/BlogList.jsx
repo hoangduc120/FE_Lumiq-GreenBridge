@@ -21,7 +21,7 @@ const BlogList = () => {
               className="w-full h-48 object-cover rounded-md group-hover:opacity-90"
             />
             <h2 className="text-xl font-semibold mt-3">{blog.title}</h2>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="text-gray-500 text-sm pt-1 pb-2">
               {new Date(blog.createdAt).toLocaleDateString()}
             </p>
             <p className="text-gray-600 mt-2 line-clamp-3">
