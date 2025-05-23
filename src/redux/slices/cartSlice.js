@@ -78,6 +78,20 @@ export const removeFromCart = createAsyncThunk(
     }
 );
 
+// Thêm action để xóa multiple items
+export const removeMultipleFromCart = createAsyncThunk(
+    'cart/removeMultipleFromCart',
+    async (productIds, { rejectWithValue }) => {
+        try {
+            const response = await cartApi.removeMultipleFromCart(productIds);
+            // Backend trả về: { success: true, data: { cart: {...} } }
+            return response.data?.cart || response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Không thể xóa các sản phẩm khỏi giỏ hàng');
+        }
+    }
+);
+
 export const clearCart = createAsyncThunk(
     'cart/clearCart',
     async (_, { rejectWithValue }) => {
@@ -201,6 +215,22 @@ const cartSlice = createSlice({
                 state.totalQuantity = action.payload?.items?.length || 0;
             })
             .addCase(removeFromCart.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+
+            // Remove multiple from cart
+            .addCase(removeMultipleFromCart.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(removeMultipleFromCart.fulfilled, (state, action) => {
+                state.loading = false;
+                state.items = action.payload?.items || [];
+                state.totalAmount = action.payload?.totalPrice || 0;
+                state.totalQuantity = action.payload?.items?.length || 0;
+            })
+            .addCase(removeMultipleFromCart.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             })

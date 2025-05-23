@@ -95,6 +95,33 @@ export const removeFromCart = async (productId) => {
     }
 };
 
+// Thêm API function để xóa multiple items
+export const removeMultipleFromCart = async (productIds) => {
+    try {
+        const response = await instance.delete('/cart/items', {
+            data: { productIds },
+            timeout: 10000,
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Remove multiple from cart API error:', error.message);
+
+        if (error.code === 'ECONNABORTED') {
+            throw new Error('Kết nối quá chậm. Vui lòng thử lại.');
+        }
+
+        if (error.message === 'Network Error') {
+            throw new Error('Không thể kết nối tới server.');
+        }
+
+        if (error.response?.status === 401) {
+            throw new Error('Vui lòng đăng nhập để xóa sản phẩm khỏi giỏ hàng.');
+        }
+
+        throw error;
+    }
+};
+
 export const clearCart = async () => {
     try {
         const response = await instance.delete('/cart/clear', {
