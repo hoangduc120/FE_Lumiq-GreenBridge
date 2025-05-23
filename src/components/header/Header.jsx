@@ -197,29 +197,33 @@ const Header = () => {
             </span>
           </div>
 
-          <div className="relative">
-            {user ? (
-              <div
-                className="relative cursor-pointer group"
-                onMouseEnter={() => setIsMenu(true)}
-                onMouseLeave={() => setIsMenu(false)}
-              >
-                <div className="w-12 h-12 rounded-full shadow-md overflow-hidden flex items-center justify-center bg-white">
-                  <FaUser className="text-xl text-green-700" />
-                </div>
-                {isMenu && (
-                  <div className="absolute top-12 left-0 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 px-5 py-4 space-y-3 transition-all duration-300">
-                    {user.role === "admin" && (
-                      <>
-                        <Link
-                          to="/admin/dashboard/user"
-                          className="block text-base text-gray-700 hover:text-green-600 transition"
-                        >
-                          Dashboard
-                        </Link>
-                        <hr />
-                      </>
-                    )}
+            <div className="relative">
+              {user ? (
+                <div
+                  className="relative cursor-pointer group"
+                  onMouseEnter={() => setIsMenu(true)}
+                  onMouseLeave={() => setIsMenu(false)}
+                >
+                  <div className="w-12 h-12 rounded-full shadow-md overflow-hidden flex items-center justify-center bg-white">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt="User Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <FaUser className="text-xl text-green-700" />
+                  )}
+                  </div>
+                  {isMenu && (
+                    <div className="absolute top-12 left-0 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 px-5 py-4 space-y-3 transition-all duration-300">
+                      {user.role === "admin" && (
+                        <>
+                          <Link
+                            to="/admin/dashboard/user"
+                            className="block text-base text-gray-700 hover:text-green-600 transition"
+                          >
+                            Dashboard
+                          </Link>
+                          <hr />
+                        </>
+                      )}
 
                     <Link
                       to="/profile"
@@ -230,24 +234,24 @@ const Header = () => {
 
                     <hr />
 
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center w-full gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-800 hover:text-green-700 transition"
-                    >
-                      <MdLogout className="text-xl" />
-                      <span className="text-base">Sign Out</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <NavLink to="/login">
-                <button className="cursor-pointer px-4 py-2 rounded-md shadow-md bg-white border border-green-400 text-green-600 hover:bg-green-50 transition">
-                  Login
-                </button>
-              </NavLink>
-            )}
-          </div>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-800 hover:text-green-700 transition cursor-pointer"
+                      >
+                        <MdLogout className="text-xl" />
+                        <span className="text-base">Sign Out</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <NavLink to="/login">
+                  <button className="cursor-pointer px-4 py-2 rounded-md shadow-md bg-white border border-green-400 text-green-600 hover:bg-green-50 transition">
+                    Login
+                  </button>
+                </NavLink>
+              )}
+            </div>
 
           <Link
             to="/cart"
