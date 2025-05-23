@@ -17,6 +17,7 @@ import BlogDetail from "../blog/BlogDetail";
 import BlogList from "../blog/BlogList";
 import ManageBlog from "../blog/ManageBlog";
 import EditBlog from "../blog/EditBlog";
+import Sell from "../mainPage/Sell";
 export default function AppRoutes() {
   return (
     <Routes>

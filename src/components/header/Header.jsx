@@ -186,7 +186,11 @@
                   onMouseLeave={() => setIsMenu(false)}
                 >
                   <div className="w-12 h-12 rounded-full shadow-md overflow-hidden flex items-center justify-center bg-white">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt="User Avatar" className="w-full h-full object-cover" />
+                  ) : (
                     <FaUser className="text-xl text-green-700" />
+                  )}
                   </div>
                   {isMenu && (
                     <div className="absolute top-12 left-0 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 px-5 py-4 space-y-3 transition-all duration-300">
