@@ -85,7 +85,7 @@ const Payment = () => {
     setPaymentMethod(event.target.value);
   };
 
-  const handlePayment = async () => {
+  const handlePayment = async (paymentMethod) => {
     if (!orderData) {
       setError('Không có thông tin đơn hàng để thanh toán');
       return;

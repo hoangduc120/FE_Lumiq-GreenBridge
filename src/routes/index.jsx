@@ -31,6 +31,7 @@ export default function AppRoutes() {
         <Route path="/payment/momo-return" element={<PaymentResult />} />
         <Route path="/payment/vnpay-return" element={<PaymentResult />} />
         <Route path="/membership" element={<Membership />} />
+        <Route path="/sell" element={<Sell />} />
         <Route path="/blog" element={<BlogEditor />} />
         <Route path="/blog/:id" element={<BlogDetail />} />
         <Route path="/blog/edit/:id" element={<EditBlog />} />
