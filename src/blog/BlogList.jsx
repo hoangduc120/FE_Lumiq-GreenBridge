@@ -14,7 +14,7 @@ const BlogList = () => {
       <h1 className="text-3xl font-bold mb-6">All Blog Posts</h1>
       <div className="grid md:grid-cols-3 gap-6">
         {blogs.map((blog) => (
-          <Link key={blog._id} to={`/blogs/${blog._id}`} className="group">
+          <Link key={blog._id} to={`/blog/${blog._id}`} className="group">
             <img
               src={blog.thumbnail || 'https://via.placeholder.com/400'}
               alt={blog.title}

@@ -13,6 +13,7 @@ import {
   selectCartUniqueItemsCount,
   selectCartIsFetched
 } from "../../redux/slices/cartSlice";
+import axiosInstance from "../../api/axios";
 // import Avatar from "../../assets/images/avatar.png";
 
 const Header = () => {
@@ -34,17 +35,50 @@ const Header = () => {
   const [isMenu, setIsMenu] = useState(false);
 
   useEffect(() => {
-    const getUser = async () => {
-      if (!storeUser) return
-      try {
-        const response = await getUserById(JSON.parse(storeUser).id);
-        setUser(response);
-      } catch (error) {
-        console.error("Error fetching user:", error);
+    const fetchUser = async () => {
+      const storedUser = localStorage.getItem('user');
+      const params = new URLSearchParams(location.search);
+      const accessToken = params.get('accessToken');
+
+      let userData = null;
+
+      // Handle Google login callback if accessToken is present
+      if (accessToken) {
+        try {
+          const response = await axiosInstance.get('/user/profile/me', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          userData = response.data.data.user;
+          localStorage.setItem('user', JSON.stringify(userData));
+          localStorage.setItem('token', accessToken);
+          // Clear the accessToken from the URL
+          window.history.replaceState({}, document.title, '/');
+        } catch (err) {
+          console.error('Error fetching user from Google login:', err);
+        }
+      }
+      // Handle stored user from localStorage
+      else if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          const response = await getUserById(parsedUser.id);
+          userData = response;
+        } catch (err) {
+          console.error('Error fetching user from localStorage:', err);
+          localStorage.removeItem('user'); // Clean up invalid user data
+          localStorage.removeItem('token');
+        }
+      }
+
+      if (userData) {
+        setUser(userData);
+      } else {
+        setUser(null); // Ensure user is null if no valid data
       }
     };
-    getUser();
-  }, [storeUser]);
+
+    fetchUser();
+  }, [location.search])
 
   useEffect(() => {
     if (isLoggedIn && !isFetched) {
