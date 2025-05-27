@@ -18,6 +18,8 @@ import BlogList from "../blog/BlogList";
 import ManageBlog from "../blog/ManageBlog";
 import EditBlog from "../blog/EditBlog";
 import Sell from "../mainPage/Sell";
+import { gardenerRoutes } from "../gardener";
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -38,6 +40,7 @@ export default function AppRoutes() {
         <Route path="/blog/edit/:id" element={<EditBlog />} />
         <Route path="/blogs" element={<BlogList />} />
         <Route path="/manage-blog" element={<ManageBlog />} />
+      {gardenerRoutes}
       </Route>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/profile" element={<Profile />}></Route>

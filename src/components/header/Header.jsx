@@ -247,7 +247,16 @@ const Header = () => {
                   </div>
                   {isMenu && (
                     <div className="absolute top-12 left-0 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 px-5 py-4 space-y-3 transition-all duration-300">
-                      {user.role === "admin" && (
+                    <Link
+                      to="/profile"
+                      className="block text-base text-gray-700 hover:text-green-600 transition"
+                    >
+                      My Profile
+                    </Link>
+
+                    <hr />
+
+                    {user.role === "admin" && (
                         <>
                           <Link
                             to="/admin/dashboard/user"
@@ -258,15 +267,17 @@ const Header = () => {
                           <hr />
                         </>
                       )}
-
-                    <Link
-                      to="/profile"
-                      className="block text-base text-gray-700 hover:text-green-600 transition"
-                    >
-                      My Profile
-                    </Link>
-
-                    <hr />
+                      {user.role === "gardener" && (
+                        <>
+                          <Link
+                            to="/gardener/manage-plant"
+                            className="block text-base text-gray-700 hover:text-green-600 transition"
+                          >
+                            Manage Plant
+                          </Link>
+                          <hr />
+                        </>
+                      )}
 
                       <button
                         onClick={handleLogout}
