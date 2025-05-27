@@ -47,7 +47,6 @@ const BlogEditor = ({
         });
 
         const data = res.data;
-
         if (data.url) {
           const editor = quillRef.current.getEditor();
           const range = editor.getSelection(true);
@@ -88,63 +87,64 @@ const BlogEditor = ({
       return;
     }
 
+    const div = document.createElement("div");
+    div.innerHTML = content;
+    const firstImg = div.querySelector("img");
+    const thumbnail = firstImg ? firstImg.getAttribute("src") : null;
+
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
-
-      const div = document.createElement("div");
-      div.innerHTML = content;
-      const firstImg = div.querySelector("img");
-      const thumbnail = firstImg ? firstImg.getAttribute("src") : null;
-
-      onSubmit({ title, content, thumbnail });
+      await onSubmit({ title, content, thumbnail });
 
       if (!isEditMode) {
         alert("Blog saved!");
+        setTitle("");
+        setContent("");
+      } else {
+        alert("Blog updated!");
       }
-      
-      setTitle("");
-      setContent("");
     } catch (err) {
-      console.error("Error saving blog:", err);
-      alert("Failed to save blog");
+      console.error("Error submitting blog:", err);
+      alert("Submission failed");
     }
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Title"
-        className="w-full mb-12 p-2 border border-gray-300 rounded-md"
-      />
-      <ReactQuill
-        theme="snow"
-        value={content}
-        onChange={setContent}
-        modules={modules}
-        placeholder="Write your blog..."
-        ref={quillRef}
-        className="mt-4"
-      />
+    <div className="w-full max-w-4xl mx-auto px-4 py-4 flex flex-col min-h-[70vh]">
+      <div className="sticky top-0 bg-white z-20 border-b border-gray-300 mb-3 py-3">
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title"
+          className="w-full p-3 border border-gray-300 rounded-md text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
+      </div>
+
+      <div className="flex-grow mb-3 border border-gray-300 rounded-md overflow-y-auto" style={{ height: "65vh" }}>
+        <ReactQuill
+          theme="snow"
+          value={content}
+          onChange={setContent}
+          modules={modules}
+          placeholder="Write your blog..."
+          ref={quillRef}
+          style={{ height: "100%" }}
+        />
+      </div>
+
       {isLoading && (
-        <div className="flex items-center justify-center mt-2 text-sm text-gray-500">
+        <div className="flex items-center justify-center mb-3 text-sm text-gray-500">
           Uploading image...
         </div>
       )}
 
-      <div className="flex items-center justify-between mt-4">
+      <div className="flex items-center justify-between">
         <span className="text-sm text-gray-600">
-          {content
-            .replace(/<[^>]+>/g, "")
-            .trim()
-            .split(/\s+/).length || 0}{" "}
-          words
+          {content.replace(/<[^>]+>/g, "").trim().split(/\s+/).filter(Boolean).length || 0} words
         </span>
         <button
           onClick={handleSubmit}
-          className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+          className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition"
           disabled={isLoading}
         >
           {isEditMode ? "Cập nhật" : "Đăng bài"}

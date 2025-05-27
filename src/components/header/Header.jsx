@@ -13,6 +13,7 @@ import {
   selectCartUniqueItemsCount,
   selectCartIsFetched
 } from "../../redux/slices/cartSlice";
+import axiosInstance from "../../api/axios";
 // import Avatar from "../../assets/images/avatar.png";
 
 const Header = () => {
@@ -34,17 +35,50 @@ const Header = () => {
   const [isMenu, setIsMenu] = useState(false);
 
   useEffect(() => {
-    const getUser = async () => {
-      if (!storeUser) return
-      try {
-        const response = await getUserById(JSON.parse(storeUser).id);
-        setUser(response);
-      } catch (error) {
-        console.error("Error fetching user:", error);
+    const fetchUser = async () => {
+      const storedUser = localStorage.getItem('user');
+      const params = new URLSearchParams(location.search);
+      const accessToken = params.get('accessToken');
+
+      let userData = null;
+
+      // Handle Google login callback if accessToken is present
+      if (accessToken) {
+        try {
+          const response = await axiosInstance.get('/user/profile/me', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          userData = response.data.data.user;
+          localStorage.setItem('user', JSON.stringify(userData));
+          localStorage.setItem('token', accessToken);
+          // Clear the accessToken from the URL
+          window.history.replaceState({}, document.title, '/');
+        } catch (err) {
+          console.error('Error fetching user from Google login:', err);
+        }
+      }
+      // Handle stored user from localStorage
+      else if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          const response = await getUserById(parsedUser.id);
+          userData = response;
+        } catch (err) {
+          console.error('Error fetching user from localStorage:', err);
+          localStorage.removeItem('user'); // Clean up invalid user data
+          localStorage.removeItem('token');
+        }
+      }
+
+      if (userData) {
+        setUser(userData);
+      } else {
+        setUser(null); // Ensure user is null if no valid data
       }
     };
-    getUser();
-  }, [storeUser]);
+
+    fetchUser();
+  }, [location.search])
 
   useEffect(() => {
     if (isLoggedIn && !isFetched) {
@@ -213,7 +247,16 @@ const Header = () => {
                   </div>
                   {isMenu && (
                     <div className="absolute top-12 left-0 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 px-5 py-4 space-y-3 transition-all duration-300">
-                      {user.role === "admin" && (
+                    <Link
+                      to="/profile"
+                      className="block text-base text-gray-700 hover:text-green-600 transition"
+                    >
+                      My Profile
+                    </Link>
+
+                    <hr />
+
+                    {user.role === "admin" && (
                         <>
                           <Link
                             to="/admin/dashboard/user"
@@ -224,15 +267,17 @@ const Header = () => {
                           <hr />
                         </>
                       )}
-
-                    <Link
-                      to="/profile"
-                      className="block text-base text-gray-700 hover:text-green-600 transition"
-                    >
-                      My Profile
-                    </Link>
-
-                    <hr />
+                      {user.role === "gardener" && (
+                        <>
+                          <Link
+                            to="/gardener/manage-plant"
+                            className="block text-base text-gray-700 hover:text-green-600 transition"
+                          >
+                            Manage Plant
+                          </Link>
+                          <hr />
+                        </>
+                      )}
 
                       <button
                         onClick={handleLogout}

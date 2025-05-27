@@ -3,6 +3,7 @@ import { Table, Button, Modal, Space, message, Spin } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axios';
+import '@ant-design/v5-patch-for-react-19';
 
 const BlogAdmin = () => {
   const [blogs, setBlogs] = useState([]);

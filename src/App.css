@@ -16,3 +16,11 @@ p {
   @theme {
     --font-dancing: 'Dancing Script', cursive;
   }
+
+  .ql-toolbar.ql-snow {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }

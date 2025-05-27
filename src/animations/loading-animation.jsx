@@ -1,22 +1,29 @@
+// ../animations/loading-animation.js
 import React from 'react';
-import Lottie from 'react-lottie';
-import animationData from './Animation - 1719826638421.json';
 
 const LoadingAnimation = () => {
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: 'xMidYMid slice',
-    },
-  };
-
   return (
-    <div className="loading-animation-overlay">
-      <div className="loading-animation">
-        <Lottie options={defaultOptions} height={450} width={450} />
-      </div>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 60,
+        height: 60,
+        border: '4px solid #f3f3f3',
+        borderTop: '4px solid #27B074',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite',
+      }}
+    >
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   );
 };
