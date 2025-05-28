@@ -11,7 +11,7 @@ import {
   fetchCart,
   selectCartItems,
   selectCartUniqueItemsCount,
-  selectCartIsFetched
+  selectCartIsFetched,
 } from "../../redux/slices/cartSlice";
 import axiosInstance from "../../api/axios";
 // import Avatar from "../../assets/images/avatar.png";
@@ -36,25 +36,25 @@ const Header = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const storedUser = localStorage.getItem('user');
+      const storedUser = localStorage.getItem("user");
       const params = new URLSearchParams(location.search);
-      const accessToken = params.get('accessToken');
+      const accessToken = params.get("accessToken");
 
       let userData = null;
 
       // Handle Google login callback if accessToken is present
       if (accessToken) {
         try {
-          const response = await axiosInstance.get('/user/profile/me', {
+          const response = await axiosInstance.get("/user/profile/me", {
             headers: { Authorization: `Bearer ${accessToken}` },
           });
           userData = response.data.data.user;
-          localStorage.setItem('user', JSON.stringify(userData));
-          localStorage.setItem('token', accessToken);
+          localStorage.setItem("user", JSON.stringify(userData));
+          localStorage.setItem("token", accessToken);
           // Clear the accessToken from the URL
-          window.history.replaceState({}, document.title, '/');
+          window.history.replaceState({}, document.title, "/");
         } catch (err) {
-          console.error('Error fetching user from Google login:', err);
+          console.error("Error fetching user from Google login:", err);
         }
       }
       // Handle stored user from localStorage
@@ -64,9 +64,9 @@ const Header = () => {
           const response = await getUserById(parsedUser.id);
           userData = response;
         } catch (err) {
-          console.error('Error fetching user from localStorage:', err);
-          localStorage.removeItem('user'); // Clean up invalid user data
-          localStorage.removeItem('token');
+          console.error("Error fetching user from localStorage:", err);
+          localStorage.removeItem("user"); // Clean up invalid user data
+          localStorage.removeItem("token");
         }
       }
 
@@ -78,19 +78,19 @@ const Header = () => {
     };
 
     fetchUser();
-  }, [location.search])
+  }, [location.search]);
 
   useEffect(() => {
     if (isLoggedIn && !isFetched) {
       const timeoutId = setTimeout(() => {
         dispatch(fetchCart()).catch((error) => {
-          console.warn('Failed to fetch cart in header:', error);
+          console.warn("Failed to fetch cart in header:", error);
         });
-      }, 1000); 
+      }, 1000);
 
       return () => clearTimeout(timeoutId);
     }
-  }, [dispatch]); 
+  }, [dispatch]);
 
   const handleLogout = async () => {
     await logout();
@@ -192,28 +192,31 @@ const Header = () => {
         <nav className="hidden md:flex items-center space-x-6">
           <Link
             to="/"
-            className={`px-3 py-1 rounded-full font-medium ${isActive("/")
-              ? "bg-green-500 text-white"
-              : "text-black hover:text-green-600"
-              }`}
+            className={`px-3 py-1 rounded-full font-medium ${
+              isActive("/")
+                ? "bg-green-500 text-white"
+                : "text-black hover:text-green-600"
+            }`}
           >
             Home
           </Link>
           <Link
-            to="/sell"
-            className={`px-3 py-1 rounded-full font-medium ${isActive("/sell")
-              ? "bg-green-500 text-white"
-              : "text-black hover:text-green-600"
-              }`}
+            to="/viewall"
+            className={`px-3 py-1 rounded-full font-medium ${
+              isActive("/sell")
+                ? "bg-green-500 text-white"
+                : "text-black hover:text-green-600"
+            }`}
           >
-            Sell
+            Products
           </Link>
           <Link
             to="/about"
-            className={`px-3 py-1 rounded-full font-medium ${isActive("/about")
-              ? "bg-green-500 text-white"
-              : "text-black hover:text-green-600"
-              }`}
+            className={`px-3 py-1 rounded-full font-medium ${
+              isActive("/about")
+                ? "bg-green-500 text-white"
+                : "text-black hover:text-green-600"
+            }`}
           >
             About us
           </Link>
@@ -231,22 +234,26 @@ const Header = () => {
             </span>
           </div>
 
-            <div className="relative">
-              {user ? (
-                <div
-                  className="relative cursor-pointer group"
-                  onMouseEnter={() => setIsMenu(true)}
-                  onMouseLeave={() => setIsMenu(false)}
-                >
-                  <div className="w-12 h-12 rounded-full shadow-md overflow-hidden flex items-center justify-center bg-white">
+          <div className="relative">
+            {user ? (
+              <div
+                className="relative cursor-pointer group"
+                onMouseEnter={() => setIsMenu(true)}
+                onMouseLeave={() => setIsMenu(false)}
+              >
+                <div className="w-12 h-12 rounded-full shadow-md overflow-hidden flex items-center justify-center bg-white">
                   {user.avatar ? (
-                    <img src={user.avatar} alt="User Avatar" className="w-full h-full object-cover" />
+                    <img
+                      src={user.avatar}
+                      alt="User Avatar"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <FaUser className="text-xl text-green-700" />
                   )}
-                  </div>
-                  {isMenu && (
-                    <div className="absolute top-12 left-0 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 px-5 py-4 space-y-3 transition-all duration-300">
+                </div>
+                {isMenu && (
+                  <div className="absolute top-12 left-0 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 px-5 py-4 space-y-3 transition-all duration-300">
                     <Link
                       to="/profile"
                       className="block text-base text-gray-700 hover:text-green-600 transition"
@@ -257,46 +264,46 @@ const Header = () => {
                     <hr />
 
                     {user.role === "admin" && (
-                        <>
-                          <Link
-                            to="/admin/dashboard/user"
-                            className="block text-base text-gray-700 hover:text-green-600 transition"
-                          >
-                            Dashboard
-                          </Link>
-                          <hr />
-                        </>
-                      )}
-                      {user.role === "gardener" && (
-                        <>
-                          <Link
-                            to="/gardener/manage-plant"
-                            className="block text-base text-gray-700 hover:text-green-600 transition"
-                          >
-                            Manage Plant
-                          </Link>
-                          <hr />
-                        </>
-                      )}
+                      <>
+                        <Link
+                          to="/admin"
+                          className="block text-base text-gray-700 hover:text-green-600 transition"
+                        >
+                          Dashboard
+                        </Link>
+                        <hr />
+                      </>
+                    )}
+                    {user.role === "gardener" && (
+                      <>
+                        <Link
+                          to="/gardener/manage-plant"
+                          className="block text-base text-gray-700 hover:text-green-600 transition"
+                        >
+                          Manage Plant
+                        </Link>
+                        <hr />
+                      </>
+                    )}
 
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center w-full gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-800 hover:text-green-700 transition cursor-pointer"
-                      >
-                        <MdLogout className="text-xl" />
-                        <span className="text-base">Sign Out</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <NavLink to="/login">
-                  <button className="cursor-pointer px-4 py-2 rounded-md shadow-md bg-white border border-green-400 text-green-600 hover:bg-green-50 transition">
-                    Login
-                  </button>
-                </NavLink>
-              )}
-            </div>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center w-full gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-800 hover:text-green-700 transition cursor-pointer"
+                    >
+                      <MdLogout className="text-xl" />
+                      <span className="text-base">Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <NavLink to="/login">
+                <button className="cursor-pointer px-4 py-2 rounded-md shadow-md bg-white border border-green-400 text-green-600 hover:bg-green-50 transition">
+                  Login
+                </button>
+              </NavLink>
+            )}
+          </div>
 
           <Link
             to="/cart"
