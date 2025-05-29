@@ -1,26 +1,14 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import imageCompression from "browser-image-compression";
 import axiosInstance from "../api/axios";
 
-const BlogEditor = ({
-  onSubmit,
-  initialContent = "",
-  initialTitle = "",
-  isEditMode = false,
-}) => {
+const BlogEditor = ({ onSubmit }) => {
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState("");
   const quillRef = useRef(null);
-
-  useEffect(() => {
-    if (isEditMode) {
-      setTitle(initialTitle);
-      setContent(initialContent);
-    }
-  }, [initialContent, initialTitle, isEditMode]);
 
   const imageHandler = () => {
     const input = document.createElement("input");
@@ -47,6 +35,7 @@ const BlogEditor = ({
         });
 
         const data = res.data;
+
         if (data.url) {
           const editor = quillRef.current.getEditor();
           const range = editor.getSelection(true);
@@ -87,40 +76,51 @@ const BlogEditor = ({
       return;
     }
 
-    const div = document.createElement("div");
-    div.innerHTML = content;
-    const firstImg = div.querySelector("img");
-    const thumbnail = firstImg ? firstImg.getAttribute("src") : null;
-
     try {
-      await onSubmit({ title, content, thumbnail });
+      const user = JSON.parse(localStorage.getItem("user"));
 
-      if (!isEditMode) {
-        alert("Blog saved!");
-        setTitle("");
-        setContent("");
-      } else {
-        alert("Blog updated!");
-      }
+      const div = document.createElement("div");
+      div.innerHTML = content;
+      const firstImg = div.querySelector("img");
+      const thumbnail = firstImg ? firstImg.getAttribute("src") : null;
+
+      await axiosInstance.post("/blog", {
+        title,
+        content,
+        author: user.id,
+        thumbnail,
+      });
+
+      alert("Blog saved!");
+      setTitle("");
+      setContent("");
     } catch (err) {
-      console.error("Error submitting blog:", err);
-      alert("Submission failed");
+      console.error("Error saving blog:", err);
+      alert("Failed to save blog");
     }
   };
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-4 flex flex-col min-h-[70vh]">
-      <div className="sticky top-0 bg-white z-20 border-b border-gray-300 mb-3 py-3">
+      {/* Title input fixed on top */}
+      <div
+        className="sticky top-0 bg-white z-20 border-b border-gray-300 mb-3"
+        style={{ paddingTop: "0.75rem", paddingBottom: "0.75rem" }}
+      >
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Title"
           className="w-full p-3 border border-gray-300 rounded-md text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-green-500"
+          style={{ fontSize: "1.1rem" }}
         />
       </div>
 
-      <div className="flex-grow mb-3 border border-gray-300 rounded-md overflow-y-auto" style={{ height: "65vh" }}>
+      <div
+        className="flex-grow mb-3 border border-gray-300 rounded-md overflow-y-auto"
+        style={{ height: "65vh", fontSize: "16px" }}
+      >
         <ReactQuill
           theme="snow"
           value={content}
@@ -128,7 +128,7 @@ const BlogEditor = ({
           modules={modules}
           placeholder="Write your blog..."
           ref={quillRef}
-          style={{ height: "100%" }}
+          style={{ height: "100%", fontSize: "16px" }}
         />
       </div>
 
@@ -140,14 +140,19 @@ const BlogEditor = ({
 
       <div className="flex items-center justify-between">
         <span className="text-sm text-gray-600">
-          {content.replace(/<[^>]+>/g, "").trim().split(/\s+/).filter(Boolean).length || 0} words
+          {content
+            .replace(/<[^>]+>/g, "")
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean).length || 0}{" "}
+          words
         </span>
         <button
           onClick={handleSubmit}
           className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition"
           disabled={isLoading}
         >
-          {isEditMode ? "Cập nhật" : "Đăng bài"}
+          Publish
         </button>
       </div>
     </div>

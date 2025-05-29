@@ -19,6 +19,7 @@ import ManageBlog from "../blog/ManageBlog";
 import EditBlog from "../blog/EditBlog";
 import Sell from "../mainPage/Sell";
 import { gardenerRoutes } from "../gardener";
+import GardenerRegister from "../mainPage/GardenerRegister";
 
 export default function AppRoutes() {
   return (
@@ -40,6 +41,7 @@ export default function AppRoutes() {
         <Route path="/blog/edit/:id" element={<EditBlog />} />
         <Route path="/blogs" element={<BlogList />} />
         <Route path="/manage-blog" element={<ManageBlog />} />
+        <Route path="/gardener-register" element={<GardenerRegister />} />
       {gardenerRoutes}
       </Route>
       <Route path="/login" element={<LoginPage />} />

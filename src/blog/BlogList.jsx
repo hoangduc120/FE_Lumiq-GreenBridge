@@ -18,7 +18,7 @@ const BlogList = () => {
             <img
               src={blog.thumbnail || 'https://via.placeholder.com/400'}
               alt={blog.title}
-              className="w-full h-48 object-cover rounded-md group-hover:opacity-90"
+              className="w-full h-48 object-cover rounded-md group-hover:opacity-90 mb-4"
             />
             <h2 className="text-xl font-semibold mt-3">{blog.title}</h2>
             <p className="text-gray-500 text-sm pt-1 pb-2">
