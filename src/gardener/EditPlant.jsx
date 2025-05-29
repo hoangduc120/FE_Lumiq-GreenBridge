@@ -28,6 +28,7 @@ const EditPlant = () => {
           name: plant.name,
           description: plant.description,
           price: plant.price,
+          discount: plant.discount,
           categories: plant.categories || [],
         };
 
@@ -118,6 +119,7 @@ const EditPlant = () => {
         name: values.name,
         description: values.description,
         price: values.price,
+        discount: values.discount,
         categories: values.categories,
         photos: photoData,
       };
@@ -182,6 +184,14 @@ const EditPlant = () => {
           <Input type="number" disabled={!isEditing} />
         </Form.Item>
 
+        <Form.Item
+          name="discount"
+          label="Discount"
+          rules={[{ required: true, message: "Please input the discount!" }]}
+        >
+          <Input type="number" disabled={!isEditing} />
+        </Form.Item>
+
         <Form.Item name="categories" label="Categories">
           <Checkbox.Group disabled={!isEditing}>
             <Checkbox value="Indoor">Indoor</Checkbox>
@@ -219,7 +229,6 @@ const EditPlant = () => {
           </Upload>
         </Form.Item>
 
-        {/* Hidden submit button since we're using a custom Save button */}
         <Form.Item hidden>
           <Button type="primary" htmlType="submit">
             Update Product

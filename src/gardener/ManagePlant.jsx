@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Empty, Spin, Button } from "antd";
 import axiosInstance from "../api/axios";
 import { Link, useNavigate } from "react-router-dom";
@@ -25,12 +25,26 @@ const ManagePlant = () => {
     fetchPlants();
   }, []);
 
+  const handleDelete = async (e, id) => {
+    e.stopPropagation();
+    try {
+      await axiosInstance.delete(`/product/${id}`);
+      setPlants((prev) => prev.filter((plant) => plant._id !== id));
+    } catch (err) {
+      console.error("Failed to delete plant:", err);
+    }
+  };
+
   return (
     <div className="bg-[#fafafa] rounded-lg p-6 shadow-md min-h-[70vh]">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-[#27B074]">Your Products</h1>
         <Link to="/gardener/add-plant">
-          <Button type="primary" icon={<PlusOutlined />} className="bg-green-500">
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            className="bg-green-500"
+          >
             Add Plant
           </Button>
         </Link>
@@ -44,10 +58,16 @@ const ManagePlant = () => {
         <div className="flex justify-center items-center h-[50vh]">
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={<span className="text-gray-500">You have no products yet.</span>}
+            description={
+              <span className="text-gray-500">You have no products yet.</span>
+            }
           >
             <Link to="/gardener/add-plant">
-              <Button type="primary" icon={<PlusOutlined />} className="bg-green-500">
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                className="bg-green-500"
+              >
                 Add Plant
               </Button>
             </Link>
@@ -59,15 +79,26 @@ const ManagePlant = () => {
             <div
               key={plant._id}
               onClick={() => navigate(`/gardener/edit-plant/${plant._id}`)}
-              className="bg-white border border-gray-200 rounded-lg shadow-sm p-3 flex flex-col items-center text-center hover:shadow-md transition"
+              className="bg-white border border-gray-200 rounded-lg shadow-sm p-3 flex flex-col items-center text-center hover:shadow-md transition cursor-pointer relative"
             >
+              <div className="absolute top-0 right-0">
+                <Button
+                  onClick={(e) => handleDelete(e, plant._id)}
+                  icon={<DeleteOutlined />}
+                  className="bg-red-500 text-white hover:bg-red-600"
+                  color="danger" variant="solid"
+                />
+              </div>
+
               <img
                 src={plant.photos?.[0]?.url || plant.image}
                 alt={plant.name}
                 className="w-28 h-28 object-cover rounded-md mb-2"
               />
               <p className="text-sm font-semibold">{plant.name}</p>
-              <p className="text-xs text-gray-500">Rs. {plant.price} ({plant.reviews?.length || 0} reviews)</p>
+              <p className="text-xs text-gray-500">
+                Rs. {plant.price} ({plant.reviews?.length || 0} reviews)
+              </p>
             </div>
           ))}
 

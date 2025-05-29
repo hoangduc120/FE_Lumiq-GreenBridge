@@ -5,13 +5,17 @@ import axiosInstance from '../api/axios';
 import imageCompression from 'browser-image-compression';
 import LoadingAnimation from '../animations/loading-animation';
 
-const StepPhotos = ({ form }) => {
+const StepPhotos = ({ form, resetSignal }) => {
   const [fileList, setFileList] = useState([]);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     form.setFieldsValue({ photos: fileList }); // Sync fileList with form
   }, [fileList, form]);
+
+  useEffect(() => {
+    setFileList([]);
+  }, [resetSignal]);
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
@@ -58,6 +62,10 @@ const StepPhotos = ({ form }) => {
 
   const handleRemove = async (file) => {
     try {
+      if (!file.public_id) {
+        message.warning("Image doesn't have a public_id to delete.");
+        return;
+      }      
       await axiosInstance.delete('/upload', {
         data: { public_id: file.public_id },
       });
