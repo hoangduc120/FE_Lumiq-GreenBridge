@@ -21,7 +21,11 @@ const GardenerSidebar = () => {
     document.documentElement.classList.toggle("dark", newTheme);
   };
 
-  const navItems = [{ label: "Manage Plant", path: "/gardener/manage-plant" }, { label: "Add Plant", path: "/gardener/add-plant" }];
+  const navItems = [
+    { label: "Manage Plant", path: "/gardener/manage-plant" },
+    { label: "Add Plant", path: "/gardener/add-plant" },
+    { label: "Doanh thu", path: "/gardener/profit" },
+  ];
 
   const handleMouseEnter = () => {
     if (!isAnimating) {
