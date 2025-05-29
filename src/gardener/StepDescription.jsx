@@ -6,7 +6,6 @@ const { TextArea } = Input;
 const StepDescription = ({ form }) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
-  // Set giá trị mặc định cho field gardener (ẩn)
   useEffect(() => {
     if (user?.id) {
       form.setFieldsValue({ gardener: user.id });
