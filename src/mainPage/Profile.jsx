@@ -20,22 +20,18 @@ const profileSchema = yup.object().shape({
   fullName: yup.string().required("Full name is required"),
   nickName: yup.string().required("Nick name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
-  gender: yup
-    .string()
-    .oneOf(["Male", "Female", "Other"], "Invalid gender")
-    .required("Gender is required"),
+  gender: yup.string().oneOf(["Male", "Female", "Other"], "Invalid gender"),
+
   phone: yup
     .string()
     .matches(/^[0-9\-+() ]*$/, "Invalid phone number")
     .min(6, "Phone must be at least 6 characters")
-    .max(20, "Phone must be at most 20 characters")
-    .required("Phone is required"),
+    .max(20, "Phone must be at most 20 characters"),
   yob: yup
     .date()
     .typeError("Year of birth is required")
-    .max(new Date(), "Year of birth must be in the past")
-    .required("Year of birth is required"),
-  address: yup.string().required("Address is required"),
+    .max(new Date(), "Year of birth must be in the past"),
+  address: yup.string(),
 });
 
 function Profile() {

@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import Layout from "../components/layout";
+import AdminLayout from "../components/admin/AdminLayout";
 import HomePage from "../mainPage/homePage";
 import LoginPage from "../mainPage/Login";
 import AboutUs from "../mainPage/AboutUs";
@@ -19,6 +20,9 @@ import ManageBlog from "../blog/ManageBlog";
 import EditBlog from "../blog/EditBlog";
 import Sell from "../mainPage/Sell";
 import { gardenerRoutes } from "../gardener";
+import ManagePackage from "../mainPage/admin/ManagePackage";
+import ManageVoucher from "../mainPage/admin/ManageVoucher";
+import RegisterPackage from "../mainPage/RegisterPackage";
 import GardenerRegister from "../mainPage/GardenerRegister";
 
 export default function AppRoutes() {
@@ -41,11 +45,17 @@ export default function AppRoutes() {
         <Route path="/blog/edit/:id" element={<EditBlog />} />
         <Route path="/blogs" element={<BlogList />} />
         <Route path="/manage-blog" element={<ManageBlog />} />
+        <Route path="/package/:id" element={<RegisterPackage />} />
         <Route path="/gardener-register" element={<GardenerRegister />} />
-      {gardenerRoutes}
+        {gardenerRoutes}
+      </Route>
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<ManagePackage />} />
+        <Route path="manage-package" element={<ManagePackage />} />
+        <Route path="manage-voucher" element={<ManageVoucher />} />
       </Route>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/profile" element={<Profile />}></Route>
+      <Route path="/profile" element={<Profile />} />
     </Routes>
   );
 }

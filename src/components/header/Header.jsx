@@ -196,14 +196,14 @@ const Header = () => {
             Home
           </Link>
           <Link
-            to="/sell"
+            to="/viewall"
             className={`px-3 py-1 rounded-full font-medium ${
               isActive("/sell")
                 ? "bg-green-500 text-white"
                 : "text-black hover:text-green-600"
             }`}
           >
-            Sell
+            Products
           </Link>
           <Link
             to="/about"
@@ -273,7 +273,7 @@ const Header = () => {
                     {user.role === "admin" && (
                       <>
                         <Link
-                          to="/admin/dashboard/user"
+                          to="/admin"
                           className="block text-base text-gray-700 hover:text-green-600 transition"
                         >
                           Dashboard
