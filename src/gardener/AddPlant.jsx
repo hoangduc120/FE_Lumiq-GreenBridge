@@ -11,11 +11,13 @@ const { Step } = Steps;
 const AddPlant = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [form] = Form.useForm();
+  const [resetSignal, setResetSignal] = useState(0);
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const steps = [
     { title: 'Description', content: <StepDescription form={form} />, fields: ['productName', 'description', 'unitsAvailable', 'price', "plantedAt"] },
     { title: 'Categories', content: <StepCategories form={form} />, fields: ['categories'] },
-    { title: 'Photos', content: <StepPhotos form={form} />, fields: ['photos'] },
+    { title: 'Photos', content: <StepPhotos form={form} resetSignal={resetSignal} />, fields: ['photos'] },
   ];
 
   const handleNext = () => {
@@ -66,7 +68,9 @@ const AddPlant = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       message.success('Product added successfully!');
+      setResetSignal(prev => prev + 1);
       setCurrentStep(1);
+      form.setFieldsValue({ gardener: user.id });
       form.resetFields();
     } catch (err) {
       console.error('Failed to add product:', err);
@@ -82,7 +86,9 @@ const AddPlant = () => {
             <Step key={item.title} title={item.title} />
           ))}
         </Steps>
-        <Form form={form} layout="vertical" onFinish={currentStep === steps.length ? handleFinish : handleNext}>
+        <Form form={form} layout="vertical"  initialValues={{
+    gardener: user?.id,
+  }} onFinish={currentStep === steps.length ? handleFinish : handleNext}>
           <div style={{ display: currentStep === 1 ? 'block' : 'none' }}>
             {steps[0].content}
           </div>

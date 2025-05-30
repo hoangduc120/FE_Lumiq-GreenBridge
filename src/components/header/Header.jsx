@@ -22,12 +22,10 @@ const Header = () => {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  // Sử dụng Redux state cho cart
   const cartItems = useSelector(selectCartItems);
   const totalItemsCount = useSelector(selectCartUniqueItemsCount);
   const isFetched = useSelector(selectCartIsFetched);
 
-  // Check if user is logged in - memoize để tránh re-render liên tục
   const storeUser = useMemo(() => localStorage.getItem("user"), []);
   const isLoggedIn = useMemo(() => !!storeUser, [storeUser]);
 
@@ -42,7 +40,6 @@ const Header = () => {
 
       let userData = null;
 
-      // Handle Google login callback if accessToken is present
       if (accessToken) {
         try {
           const response = await axiosInstance.get("/user/profile/me", {
@@ -56,16 +53,14 @@ const Header = () => {
         } catch (err) {
           console.error("Error fetching user from Google login:", err);
         }
-      }
-      // Handle stored user from localStorage
-      else if (storedUser) {
+      } else if (storedUser) {
         try {
           const parsedUser = JSON.parse(storedUser);
           const response = await getUserById(parsedUser.id);
           userData = response;
         } catch (err) {
           console.error("Error fetching user from localStorage:", err);
-          localStorage.removeItem("user"); // Clean up invalid user data
+          localStorage.removeItem("user");
           localStorage.removeItem("token");
         }
       }
@@ -119,7 +114,7 @@ const Header = () => {
         <button className="text-white font-bold pr-4 hidden sm:block">×</button>
       </div>
 
-      <div className="w-full flex items-center justify-between px-60 py-4">
+      <div className="w-full flex items-center justify-between px-40 py-4">
         <div className="flex items-center space-x-4">
           <Link to="/" className="text-green-700 text-2xl font-semibold">
             GreenBridge
@@ -220,6 +215,18 @@ const Header = () => {
           >
             About us
           </Link>
+          {user && user.role === "user" && (
+            <Link
+              to="/gardener-register"
+              className={`px-3 py-1 rounded-full font-medium ${
+                isActive("/gardener-register")
+                  ? "bg-green-500 text-white"
+                  : "text-black hover:text-green-600"
+              }`}
+            >
+              Gardener Register
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center space-x-4">

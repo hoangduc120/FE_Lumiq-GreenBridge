@@ -23,6 +23,7 @@ import { gardenerRoutes } from "../gardener";
 import ManagePackage from "../mainPage/admin/ManagePackage";
 import ManageVoucher from "../mainPage/admin/ManageVoucher";
 import RegisterPackage from "../mainPage/RegisterPackage";
+import GardenerRegister from "../mainPage/GardenerRegister";
 
 export default function AppRoutes() {
   return (
@@ -45,6 +46,7 @@ export default function AppRoutes() {
         <Route path="/blogs" element={<BlogList />} />
         <Route path="/manage-blog" element={<ManageBlog />} />
         <Route path="/package/:id" element={<RegisterPackage />} />
+        <Route path="/gardener-register" element={<GardenerRegister />} />
         {gardenerRoutes}
       </Route>
       <Route path="/admin" element={<AdminLayout />}>
@@ -53,7 +55,7 @@ export default function AppRoutes() {
         <Route path="manage-voucher" element={<ManageVoucher />} />
       </Route>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/profile" element={<Profile />}></Route>
+      <Route path="/profile" element={<Profile />} />
     </Routes>
   );
 }
