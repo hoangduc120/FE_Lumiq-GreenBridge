@@ -6,6 +6,7 @@ import {
   Button,
   message,
   Select,
+  Spin
 } from "antd";
 import { UploadOutlined, PlusOutlined } from "@ant-design/icons";
 import axiosInstance from "../api/axios";
@@ -19,6 +20,52 @@ const GardenerRegister = () => {
   const [loading, setLoading] = useState(false);
   const [gardenPhotos, setGardenPhotos] = useState([]);
   const [cccdPhotos, setCccdPhotos] = useState([]);
+  const [accountName, setAccountName] = useState("");
+  const [verifying, setVerifying] = useState(false);
+
+  const bankBinMap = {
+    Vietcombank: "970436",
+    TPBank: "970423",
+    "MB Bank": "970422",
+    Techcombank: "970407",
+  };
+
+  const verifyBankAccount = async () => {
+    const { bankAccountNumber, bankName } = form.getFieldsValue();
+
+    if (!bankAccountNumber || !bankName) {
+      message.warning("Enter both bank name and account number.");
+      return;
+    }
+
+    const bin = bankBinMap[bankName];
+    if (!bin) {
+      message.warning("Bank not supported for auto verification.");
+      return;
+    }
+
+    try {
+      setVerifying(true);
+      const res = await axiosInstance.post("/bank/verify", {
+        accountNo: bankAccountNumber,
+        bin,
+      });
+
+      const name = res.data?.data?.accountName;
+      if (name) {
+        setAccountName(name);
+        message.success("Bank account verified!");
+      } else {
+        throw new Error("No account name returned");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Verification failed.");
+      setAccountName("");
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   const handleUpload = async (file, setFiles) => {
     try {
@@ -75,6 +122,7 @@ const GardenerRegister = () => {
       ...values,
       gardenPhotos,
       cccdPhotos,
+      accountName,
     };
 
     try {
@@ -84,6 +132,7 @@ const GardenerRegister = () => {
       form.resetFields();
       setGardenPhotos([]);
       setCccdPhotos([]);
+      setAccountName("");
     } catch (err) {
       console.error(err);
       message.error(err.response?.data?.error || "Submission failed");
@@ -99,7 +148,7 @@ const GardenerRegister = () => {
         <Form.Item
           name="phoneNumber"
           label="Phone Number"
-          rules={[{ required: true, message: "Required" }]}
+          rules={[{ required: true }]}
         >
           <Input placeholder="e.g. 0909090909" />
         </Form.Item>
@@ -107,29 +156,37 @@ const GardenerRegister = () => {
         <Form.Item
           name="bankAccountNumber"
           label="Bank Account Number"
-          rules={[{ required: true, message: "Required" }]}
+          rules={[{ required: true }]}
         >
-          <Input placeholder="e.g. 1234567890" />
+          <Input.Search
+            enterButton={verifying ? <Spin size="small" /> : "Verify"}
+            placeholder="e.g. 1234567890"
+            onSearch={verifyBankAccount}
+          />
         </Form.Item>
 
         <Form.Item
           name="bankName"
           label="Bank Name"
-          rules={[{ required: true, message: "Required" }]}
+          rules={[{ required: true }]}
         >
           <Select placeholder="Select bank">
-            <Option value="Vietcombank">Vietcombank</Option>
-            <Option value="TPBank">TPBank</Option>
-            <Option value="MB Bank">MB Bank</Option>
-            <Option value="Techcombank">Techcombank</Option>
-            <Option value="Other">Other</Option>
+            {Object.keys(bankBinMap).map((bank) => (
+              <Option key={bank} value={bank}>
+                {bank}
+              </Option>
+            ))}
           </Select>
+        </Form.Item>
+
+        <Form.Item label="Account Holder Name">
+          <Input value={accountName} disabled placeholder="Auto-filled after verify" />
         </Form.Item>
 
         <Form.Item
           name="nationalId"
           label="National ID / CCCD"
-          rules={[{ required: true, message: "Required" }]}
+          rules={[{ required: true }]}
         >
           <Input placeholder="e.g. 012345678901" />
         </Form.Item>
@@ -137,12 +194,11 @@ const GardenerRegister = () => {
         <Form.Item
           name="placeAddress"
           label="Garden Address"
-          rules={[{ required: true, message: "Required" }]}
+          rules={[{ required: true }]}
         >
           <Input.TextArea rows={3} placeholder="Where is your garden located?" />
         </Form.Item>
 
-        {/* Upload Garden Photos */}
         <Form.Item label="Garden Photos" required>
           <Upload
             listType="picture-card"
@@ -163,7 +219,6 @@ const GardenerRegister = () => {
           </Upload>
         </Form.Item>
 
-        {/* Upload CCCD */}
         <Form.Item label="CCCD Photos (Front and Back)" required>
           <Upload
             listType="picture-card"
@@ -184,13 +239,13 @@ const GardenerRegister = () => {
           </Upload>
         </Form.Item>
 
-        <div className="mb-8">
+        <div className="mb-6">
           <p>
             Bằng cách gửi biểu mẫu này, tôi đồng ý với{" "}
-            <Link className="mx-1" to="/term-and-policies">
+            <Link to="/term-and-policies" className="text-blue-500 underline">
               Điều khoản và chính sách
             </Link>{" "}
-            của <span className="text-green-600 ml-1">GreenBridge</span>
+            của <span className="text-green-600">GreenBridge</span>
           </p>
         </div>
 
@@ -199,7 +254,7 @@ const GardenerRegister = () => {
             type="primary"
             htmlType="submit"
             loading={loading}
-            className="bg-green-600 mt-4"
+            className="bg-green-600"
           >
             Submit Application
           </Button>
