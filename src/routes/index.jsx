@@ -24,6 +24,7 @@ import ManagePackage from "../mainPage/admin/ManagePackage";
 import ManageVoucher from "../mainPage/admin/ManageVoucher";
 import RegisterPackage from "../mainPage/RegisterPackage";
 import GardenerRegister from "../mainPage/GardenerRegister";
+import AddCategory from "../mainPage/admin/AddCategory";
 
 export default function AppRoutes() {
   return (
@@ -53,6 +54,7 @@ export default function AppRoutes() {
         <Route index element={<ManagePackage />} />
         <Route path="manage-package" element={<ManagePackage />} />
         <Route path="manage-voucher" element={<ManageVoucher />} />
+        <Route path="add-category" element={<AddCategory />} />
       </Route>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/profile" element={<Profile />} />
