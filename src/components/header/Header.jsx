@@ -120,7 +120,7 @@ const Header = () => {
             GreenBridge
           </Link>
 
-          <Link to="/chatbot" className="flex items-center gap-2 relative ml-4">
+          <Link to="/chatbox" className="flex items-center gap-2 relative ml-4">
             <div className="relative w-9 h-9">
               <svg
                 className="w-9 h-9"
