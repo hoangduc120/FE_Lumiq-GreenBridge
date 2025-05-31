@@ -25,6 +25,7 @@ import ManageVoucher from "../mainPage/admin/ManageVoucher";
 import RegisterPackage from "../mainPage/RegisterPackage";
 import GardenerRegister from "../mainPage/GardenerRegister";
 import AddCategory from "../mainPage/admin/AddCategory";
+import Chatbox from "../mainPage/chatbox";
 
 export default function AppRoutes() {
   return (
@@ -58,6 +59,7 @@ export default function AppRoutes() {
       </Route>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/chatbox" element={<Chatbox />} />
     </Routes>
   );
 }
