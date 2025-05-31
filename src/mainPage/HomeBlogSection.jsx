@@ -27,7 +27,7 @@ const HomeBlogSection = () => {
     <section className="w-full max-w-7xl mx-auto px-10 py-12">
       {/* Header */}
       <div className="flex justify-between items-center border-b border-gray-300 pb-4 mb-10">
-        <h2 className="text-lg font-semibold text-gray-700">News & Updates</h2>
+        <h2 className="text-2xl font-semibold text-gray-700">News & Updates</h2>
         <Link
           to="/blogs"
           className="text-sm font-medium text-gray-600 hover:text-gray-800"

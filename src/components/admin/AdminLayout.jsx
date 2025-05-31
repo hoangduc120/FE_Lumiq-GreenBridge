@@ -11,6 +11,7 @@ import {
   TeamOutlined,
   SettingOutlined,
   TagsOutlined,
+  CaretDownFilled,
 } from "@ant-design/icons";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -76,6 +77,11 @@ const AdminLayout = () => {
       label: <Link to="/admin/manage-products">Sản phẩm</Link>,
     },
     {
+      key: "add category",
+      icon: <CaretDownFilled />,
+      label: <Link to="/admin/add-category">Thêm danh mục</Link>,
+    },
+    {
       key: "users",
       icon: <TeamOutlined />,
       label: <Link to="/admin/manage-users">Người dùng</Link>,
@@ -91,6 +97,7 @@ const AdminLayout = () => {
   const getActiveKey = () => {
     if (location.pathname === "/admin") return "dashboard";
     if (location.pathname.includes("manage-package")) return "packages";
+    if (location.pathname.includes("add-category")) return "add-category";
     if (location.pathname.includes("manage-voucher")) return "voucher";
     if (location.pathname.includes("manage-products")) return "products";
     if (location.pathname.includes("manage-users")) return "users";
