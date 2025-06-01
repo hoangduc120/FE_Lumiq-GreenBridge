@@ -1,13 +1,5 @@
-import React, { useState } from "react";
-import {
-  Form,
-  Input,
-  Upload,
-  Button,
-  message,
-  Select,
-  Spin
-} from "antd";
+import React, { useEffect, useState } from "react";
+import { Form, Input, Upload, Button, message, Select } from "antd";
 import { UploadOutlined, PlusOutlined } from "@ant-design/icons";
 import axiosInstance from "../api/axios";
 import { Link } from "react-router-dom";
@@ -20,52 +12,19 @@ const GardenerRegister = () => {
   const [loading, setLoading] = useState(false);
   const [gardenPhotos, setGardenPhotos] = useState([]);
   const [cccdPhotos, setCccdPhotos] = useState([]);
-  const [accountName, setAccountName] = useState("");
-  const [verifying, setVerifying] = useState(false);
+  const [bankList, setBankList] = useState([]);
 
-  const bankBinMap = {
-    Vietcombank: "970436",
-    TPBank: "970423",
-    "MB Bank": "970422",
-    Techcombank: "970407",
-  };
-
-  const verifyBankAccount = async () => {
-    const { bankAccountNumber, bankName } = form.getFieldsValue();
-
-    if (!bankAccountNumber || !bankName) {
-      message.warning("Enter both bank name and account number.");
-      return;
-    }
-
-    const bin = bankBinMap[bankName];
-    if (!bin) {
-      message.warning("Bank not supported for auto verification.");
-      return;
-    }
-
-    try {
-      setVerifying(true);
-      const res = await axiosInstance.post("/bank/verify", {
-        accountNo: bankAccountNumber,
-        bin,
-      });
-
-      const name = res.data?.data?.accountName;
-      if (name) {
-        setAccountName(name);
-        message.success("Bank account verified!");
-      } else {
-        throw new Error("No account name returned");
+  useEffect(() => {
+    const fetchBankList = async () => {
+      try {
+        const res = await axiosInstance.get("/bank/list");
+        setBankList(res.data);
+      } catch (err) {
+        console.error("Failed to fetch bank list", err);
       }
-    } catch (err) {
-      console.error(err);
-      message.error("Verification failed.");
-      setAccountName("");
-    } finally {
-      setVerifying(false);
-    }
-  };
+    };
+    fetchBankList();
+  }, []);
 
   const handleUpload = async (file, setFiles) => {
     try {
@@ -122,7 +81,6 @@ const GardenerRegister = () => {
       ...values,
       gardenPhotos,
       cccdPhotos,
-      accountName,
     };
 
     try {
@@ -132,7 +90,6 @@ const GardenerRegister = () => {
       form.resetFields();
       setGardenPhotos([]);
       setCccdPhotos([]);
-      setAccountName("");
     } catch (err) {
       console.error(err);
       message.error(err.response?.data?.error || "Submission failed");
@@ -158,30 +115,28 @@ const GardenerRegister = () => {
           label="Bank Account Number"
           rules={[{ required: true }]}
         >
-          <Input.Search
-            enterButton={verifying ? <Spin size="small" /> : "Verify"}
-            placeholder="e.g. 1234567890"
-            onSearch={verifyBankAccount}
-          />
+          <Input placeholder="e.g. 1234567890" />
         </Form.Item>
 
         <Form.Item
-          name="bankName"
-          label="Bank Name"
-          rules={[{ required: true }]}
-        >
-          <Select placeholder="Select bank">
-            {Object.keys(bankBinMap).map((bank) => (
-              <Option key={bank} value={bank}>
-                {bank}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+  name="bankName"
+  label="Bank Name"
+  rules={[{ required: true }]}
+>
+  <Select
+    showSearch
+    placeholder="Select bank"
+    optionFilterProp="label"
+    filterOption={(input, option) =>
+      option.label.toLowerCase().includes(input.toLowerCase())
+    }
+    options={bankList.map((bank) => ({
+      label: `${bank.shortName} - ${bank.name}`,
+      value: bank.shortName,
+    }))}
+  />
+</Form.Item>
 
-        <Form.Item label="Account Holder Name">
-          <Input value={accountName} disabled placeholder="Auto-filled after verify" />
-        </Form.Item>
 
         <Form.Item
           name="nationalId"
@@ -196,7 +151,10 @@ const GardenerRegister = () => {
           label="Garden Address"
           rules={[{ required: true }]}
         >
-          <Input.TextArea rows={3} placeholder="Where is your garden located?" />
+          <Input.TextArea
+            rows={3}
+            placeholder="Where is your garden located?"
+          />
         </Form.Item>
 
         <Form.Item label="Garden Photos" required>
