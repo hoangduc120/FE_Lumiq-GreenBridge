@@ -68,7 +68,7 @@ const Header = () => {
       if (userData) {
         setUser(userData);
       } else {
-        setUser(null); // Ensure user is null if no valid data
+        setUser(null); 
       }
     };
 

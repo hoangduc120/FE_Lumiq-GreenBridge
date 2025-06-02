@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FiHeart, FiTruck, FiClock, FiShoppingCart } from 'react-icons/fi';
@@ -10,9 +10,8 @@ import {
     buyNow,
     selectCartLoading,
     selectShouldNavigateToCart,
-    clearNavigationFlag
+    clearNavigationFlag,
 } from '../redux/slices/cartSlice';
-
 
 const ProductDetail = () => {
     const [selectedImage, setSelectedImage] = useState(0);
@@ -21,26 +20,23 @@ const ProductDetail = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    // Redux selectors
     const { product, status, error } = useSelector((state) => state.productDetail);
     const cartLoading = useSelector(selectCartLoading);
     const shouldNavigateToCart = useSelector(selectShouldNavigateToCart);
 
-    // Xử lý images từ product
-    const images = product?.image ? [product.image] : ['/placeholder.svg'];
+    const images = product?.photos?.length > 0
+        ? product.photos.map((photo) => photo.url)
+        : ['https://via.placeholder.com/500'];
 
     useEffect(() => {
         if (id) {
             dispatch(fetProductById(id));
         }
-
-        // Cleanup khi component unmount
         return () => {
             dispatch(resetProductDetail());
         };
     }, [dispatch, id]);
 
-    // Handle navigation to cart sau khi buy now
     useEffect(() => {
         if (shouldNavigateToCart) {
             dispatch(clearNavigationFlag());
@@ -49,8 +45,10 @@ const ProductDetail = () => {
         }
     }, [shouldNavigateToCart, navigate, dispatch]);
 
-    const toggleFavorite = () => {
+    const toggleFavorite = async () => {
+        // TODO: Thêm API để lưu trạng thái yêu thích
         setIsFavorite(!isFavorite);
+        toast.info(isFavorite ? 'Đã xóa khỏi yêu thích' : 'Đã thêm vào yêu thích');
     };
 
     const handleAddToCart = async () => {
@@ -58,13 +56,11 @@ const ProductDetail = () => {
             toast.error('Không tìm thấy thông tin sản phẩm');
             return;
         }
-
         try {
             await dispatch(addToCart({
                 productId: product._id,
-                quantity: 1
+                quantity: 1,
             })).unwrap();
-
             toast.success('Đã thêm sản phẩm vào giỏ hàng!');
         } catch (error) {
             toast.error(error || 'Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng');
@@ -76,20 +72,16 @@ const ProductDetail = () => {
             toast.error('Không tìm thấy thông tin sản phẩm');
             return;
         }
-
         try {
             await dispatch(buyNow({
                 productId: product._id,
-                quantity: 1
+                quantity: 1,
             })).unwrap();
-
-            // Navigation sẽ được xử lý bởi useEffect khi shouldNavigateToCart thay đổi
         } catch (error) {
             toast.error(error || 'Có lỗi xảy ra khi mua sản phẩm');
         }
     };
 
-    // Handle loading state
     if (status === 'loading') {
         return (
             <div className="container mx-auto px-4 py-8 text-center text-gray-600">
@@ -98,7 +90,6 @@ const ProductDetail = () => {
         );
     }
 
-    // Handle error state
     if (status === 'failed') {
         return (
             <div className="container mx-auto px-4 py-8 text-center text-red-500">
@@ -107,7 +98,6 @@ const ProductDetail = () => {
         );
     }
 
-    // Handle no product found
     if (!product) {
         return (
             <div className="container mx-auto px-4 py-8 text-center text-gray-600">
@@ -117,124 +107,123 @@ const ProductDetail = () => {
     }
 
     return (
-        <>
-            <div className="container mx-auto px-4 py-8">
-                {/* Breadcrumb */}
-                <div className="flex items-center space-x-2 mb-6">
-                    <Link to="/" className="text-gray-600 hover:text-gray-900">Trang chủ</Link>
-                    <span className="text-gray-400">&gt;</span>
-                    <Link to="/viewall" className="text-gray-600 hover:text-gray-900">Sản phẩm</Link>
-                    <span className="text-gray-400">&gt;</span>
-                    <span className="text-gray-900">{product.productName}</span>
+        <div className="container mx-auto px-4 py-8">
+            <div className="flex items-center space-x-2 mb-6">
+                <Link to="/" className="text-gray-600 hover:text-gray-900">Trang chủ</Link>
+                <span className="text-gray-400">&gt;</span>
+                <Link to="/viewall" className="text-gray-600 hover:text-gray-900">Sản phẩm</Link>
+                <span className="text-gray-400">&gt;</span>
+                <span className="text-gray-900">{product.name}</span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                    <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                        <img
+                            src={images[selectedImage]}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/500';
+                                console.warn(`Failed to load image for product ${product._id}`);
+                            }}
+                        />
+                    </div>
+                    {images.length > 1 && (
+                        <div className="flex space-x-2">
+                            {images.map((image, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => setSelectedImage(index)}
+                                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${selectedImage === index ? 'border-green-500' : 'border-gray-200'}`}
+                                >
+                                    <img
+                                        src={image}
+                                        alt={`${product.name} ${index + 1}`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Hình ảnh sản phẩm */}
-                    <div className="space-y-4">
-                        <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                            <img
-                                src={images[selectedImage]}
-                                alt={product.productName}
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
-
-                        {/* Thumbnail images */}
-                        {images.length > 1 && (
-                            <div className="flex space-x-2">
-                                {images.map((image, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => setSelectedImage(index)}
-                                        className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${selectedImage === index ? 'border-green-500' : 'border-gray-200'
-                                            }`}
-                                    >
-                                        <img
-                                            src={image}
-                                            alt={`${product.productName} ${index + 1}`}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Thông tin sản phẩm */}
-                    <div className="space-y-6">
-                        <h1 className="text-3xl font-bold text-gray-900">{product.productName}</h1>
-
-                        <div className="flex items-center space-x-4">
-                            <span className="text-3xl font-bold text-green-600">
-                                {product.price?.toLocaleString()}đ
+                <div className="space-y-6">
+                    <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+                    <div className="flex items-center space-x-4">
+                        <span className="text-3xl font-bold text-green-600">
+                            {product.price?.toLocaleString()}đ
+                        </span>
+                        {product.unitsAvailable !== undefined && (
+                            <span className="text-sm text-gray-500">
+                                Còn lại: {product.unitsAvailable} sản phẩm
                             </span>
-                            {product.stock && (
-                                <span className="text-sm text-gray-500">
-                                    Còn lại: {product.stock} sản phẩm
-                                </span>
-                            )}
-                        </div>
-
-                        {product.author && (
-                            <div className="text-gray-600">
-                                <span className="font-medium">Tác giả: </span>
-                                <span>{product.author}</span>
-                            </div>
-                        )}
-
-                        <p className="text-gray-600 leading-relaxed">
-                            {product.description || 'Không có mô tả sản phẩm'}
-                        </p>
-
-                        {/* Thông tin giao hàng */}
-                        <div className="space-y-3">
-                            <div className="flex items-center space-x-3">
-                                <FiTruck className="text-green-500" />
-                                <span className="text-sm text-gray-600">Miễn phí giao hàng cho đơn từ 500.000đ</span>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                                <FiClock className="text-green-500" />
-                                <span className="text-sm text-gray-600">Giao hàng trong 2-3 ngày</span>
-                            </div>
-                        </div>
-
-                        {/* Nút mua hàng và yêu thích */}
-                        <div className="flex items-center gap-3 mt-6">
-                            <button
-                                onClick={handleBuyNow}
-                                disabled={cartLoading || (product.stock && product.stock <= 0)}
-                                className="px-5 py-3 bg-green-500 text-white rounded-md font-medium hover:bg-green-600 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {cartLoading ? 'Đang xử lý...' : 'Mua ngay'}
-                            </button>
-                            <button
-                                onClick={handleAddToCart}
-                                disabled={cartLoading || (product.stock && product.stock <= 0)}
-                                className="px-4 py-3 flex items-center gap-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <FiShoppingCart />
-                                {cartLoading ? 'Đang thêm...' : 'Thêm vào giỏ'}
-                            </button>
-                            <button
-                                className={`p-3 rounded-md border ${isFavorite ? 'text-red-500' : 'text-gray-400'} hover:bg-gray-50`}
-                                onClick={toggleFavorite}
-                            >
-                                <FiHeart className={isFavorite ? "fill-red-500" : ""} />
-                            </button>
-                        </div>
-
-                        {product.stock && product.stock <= 0 && (
-                            <p className="text-red-500 font-medium">Sản phẩm đã hết hàng</p>
                         )}
                     </div>
-                </div>
-
-                {/* Customer Reviews */}
-                <div className="mt-16">
-                    <CustomerReview />
+                    {product.gardener && (
+                        <div className="text-gray-600">
+                            <span className="font-medium">Người trồng: </span>
+                            <span>{product.gardener.name || product.gardener.email}</span>
+                        </div>
+                    )}
+                    {product.categories?.length > 0 && (
+                        <div className="text-gray-600">
+                            <span className="font-medium">Danh mục: </span>
+                            <span>{product.categories.join(', ')}</span>
+                        </div>
+                    )}
+                    {product.plantedAt && (
+                        <div className="text-gray-600">
+                            <span className="font-medium">Ngày trồng: </span>
+                            <span>{new Date(product.plantedAt).toLocaleDateString('vi-VN')}</span>
+                        </div>
+                    )}
+                    <p className="text-gray-600 leading-relaxed">
+                        {product.description || 'Không có mô tả sản phẩm'}
+                    </p>
+                    <div className="space-y-3">
+                        <div className="flex items-center space-x-3">
+                            <FiTruck className="text-green-500" />
+                            <span className="text-sm text-gray-600">Miễn phí giao hàng cho đơn từ 500.000đ</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                            <FiClock className="text-green-500" />
+                            <span className="text-sm text-gray-600">Giao hàng trong 2-3 ngày</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3 mt-6">
+                        <button
+                            onClick={handleBuyNow}
+                            disabled={cartLoading || product.unitsAvailable <= 0}
+                            className="px-5 py-3 bg-green-500 text-white rounded-md font-medium hover:bg-green-600 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {cartLoading ? 'Đang xử lý...' : 'Mua ngay'}
+                        </button>
+                        <button
+                            onClick={handleAddToCart}
+                            disabled={cartLoading || product.unitsAvailable <= 0}
+                            className="px-4 py-3 flex items-center gap-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <FiShoppingCart />
+                            {cartLoading ? 'Đang thêm...' : 'Thêm vào giỏ'}
+                        </button>
+                        <button
+                            className={`p-3 rounded-md border ${isFavorite ? 'text-red-500' : 'text-gray-400'} hover:bg-gray-50`}
+                            onClick={toggleFavorite}
+                        >
+                            <FiHeart className={isFavorite ? 'fill-red-500' : ''} />
+                        </button>
+                    </div>
+                    {product.unitsAvailable <= 0 && (
+                        <p className="text-red-500 font-medium">Sản phẩm đã hết hàng</p>
+                    )}
                 </div>
             </div>
-        </>
+
+            <div className="mt-16">
+                <CustomerReview />
+            </div>
+        </div>
     );
 };
 

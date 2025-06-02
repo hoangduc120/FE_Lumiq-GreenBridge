@@ -2,39 +2,32 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getProductById } from "../../api/productApi";
 
 
-
 export const fetProductById = createAsyncThunk(
-    "productDetail/fetchProductById",
+    'productDetail/fetchProductById',
     async (id, { rejectWithValue }) => {
         try {
             const response = await getProductById(id);
-            // Response có cấu trúc: { message, status, data: { product }, options }
-            if (response && response.data && response.data.product) {
-                return response.data.product;
-            } else {
-                return rejectWithValue("Dữ liệu sản phẩm không đúng định dạng");
-            }
+            return response; // Backend trả về trực tiếp đối tượng sản phẩm
         } catch (error) {
-            return rejectWithValue(error.message || "Failed to fetch product");
+            return rejectWithValue(error.message || 'Không thể tải thông tin sản phẩm');
         }
     }
-)
-
+);
 const initialState = {
     product: null,
-    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
-    error: null,
-}
+    status: 'idle',
+    error: null
+};
 
 const productDetailSlice = createSlice({
-    name: "productDetail",
+    name: 'productDetail',
     initialState,
     reducers: {
         resetProductDetail: (state) => {
             state.product = null;
             state.status = 'idle';
             state.error = null;
-        },
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -49,9 +42,9 @@ const productDetailSlice = createSlice({
             .addCase(fetProductById.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
-            })
+            });
     }
-})
+});
 
 export const { resetProductDetail } = productDetailSlice.actions;
 export default productDetailSlice.reducer;
