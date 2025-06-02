@@ -12,6 +12,12 @@ const ManagePlant = () => {
 
   const fetchPlants = async () => {
     try {
+      if (!user || !user.id) {
+        console.error("User not found or missing ID");
+        setLoading(false);
+        return;
+      }
+
       const res = await axiosInstance.get(`/product/gardener/${user.id}`);
       setPlants(res.data);
     } catch (err) {

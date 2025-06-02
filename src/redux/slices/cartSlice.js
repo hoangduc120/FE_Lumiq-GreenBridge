@@ -126,7 +126,11 @@ const cartSlice = createSlice({
         },
         updateCartTotals: (state) => {
             state.totalQuantity = state.items.reduce((total, item) => total + item.quantity, 0);
-            state.totalAmount = state.items.reduce((total, item) => total + (item.productId.price * item.quantity), 0);
+            state.totalAmount = state.items.reduce((total, item) => {
+                // Xử lý nếu productId là object hoặc string
+                const price = typeof item.productId === 'object' ? item.productId?.price : 0;
+                return total + (price * item.quantity);
+            }, 0);
         },
         updateCartTotalsUnique: (state) => {
             // Cập nhật số lượng sản phẩm khác nhau (không phụ thuộc vào quantity)
@@ -134,7 +138,7 @@ const cartSlice = createSlice({
             // Chỉ tính lại totalAmount nếu không có từ backend
             if (!state.totalAmount || state.totalAmount === 0) {
                 state.totalAmount = state.items.reduce((total, item) => {
-                    const price = item.productId?.price || 0;
+                    const price = typeof item.productId === 'object' ? item.productId?.price : 0;
                     const quantity = item.quantity || 1;
                     return total + (price * quantity);
                 }, 0);

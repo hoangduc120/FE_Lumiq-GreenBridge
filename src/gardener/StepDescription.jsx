@@ -9,6 +9,7 @@ const StepDescription = ({ form }) => {
   useEffect(() => {
     if (user?.id) {
       form.setFieldsValue({ gardener: user.id });
+      console.log(user.id);
     }
   }, [user?.id, form]);
 
