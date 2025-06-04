@@ -82,6 +82,11 @@ const AdminLayout = () => {
       label: <Link to="/admin/add-category">Thêm danh mục</Link>,
     },
     {
+      key: "manage gardener profile",
+      icon: <TeamOutlined />,
+      label: <Link to="/admin/manage-gardener-profile">Quản lý hồ sơ chủ vườn</Link>,
+    },
+    {
       key: "users",
       icon: <TeamOutlined />,
       label: <Link to="/admin/manage-users">Người dùng</Link>,

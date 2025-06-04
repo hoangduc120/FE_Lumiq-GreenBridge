@@ -21,6 +21,7 @@ const ProductDetail = () => {
     const dispatch = useDispatch();
 
     const { product, status, error } = useSelector((state) => state.productDetail);
+    console.log(product)
     const cartLoading = useSelector(selectCartLoading);
     const shouldNavigateToCart = useSelector(selectShouldNavigateToCart);
 
@@ -169,7 +170,7 @@ const ProductDetail = () => {
                     {product.categories?.length > 0 && (
                         <div className="text-gray-600">
                             <span className="font-medium">Danh mục: </span>
-                            <span>{product.categories.join(', ')}</span>
+                            <span>{product.categories.map((category) => category.name).join(', ')}</span>
                         </div>
                     )}
                     {product.plantedAt && (

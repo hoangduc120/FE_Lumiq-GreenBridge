@@ -26,6 +26,7 @@ import RegisterPackage from "../mainPage/RegisterPackage";
 import GardenerRegister from "../mainPage/GardenerRegister";
 import AddCategory from "../mainPage/admin/AddCategory";
 import Chatbox from "../mainPage/chatbox";
+import ManageGardenerProfile from "../mainPage/admin/ManageGardenerProfile";
 
 export default function AppRoutes() {
   return (
@@ -56,6 +57,7 @@ export default function AppRoutes() {
         <Route path="manage-package" element={<ManagePackage />} />
         <Route path="manage-voucher" element={<ManageVoucher />} />
         <Route path="add-category" element={<AddCategory />} />
+        <Route path="manage-gardener-profile" element={<ManageGardenerProfile />} />
       </Route>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/profile" element={<Profile />} />
