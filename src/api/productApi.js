@@ -13,7 +13,7 @@ export const createProduct = async (productData) => {
 
 export const getAllProducts = async (page = 1, limit = 6, sort = '', search = '') => {
     try {
-        const requestUrl = `${BASE_URL}/all`;
+        const requestUrl = `${BASE_URL}`;
 
         const response = await instance.get(requestUrl, {
             params: { page, limit, sort, search }
@@ -28,22 +28,26 @@ export const getAllProducts = async (page = 1, limit = 6, sort = '', search = ''
 export const getProductById = async (id) => {
     try {
         const response = await instance.get(`${BASE_URL}/${id}`);
+        console.log('Product API response:', response);
         return response.data;
     } catch (error) {
         console.error('Error fetching product:', error);
+        if (error.response?.status === 404) {
+            throw new Error('Không tìm thấy sản phẩm');
+        }
         throw error;
     }
 }
 
 export const getAddressData = async (province, district, ward_street) => {
     try {
-      const res = await instance.post(`${BASE_URL}/api/product/address`, {
-        province,
-        district,
-        ward_street,
-      });
-      return res.data.data;
+        const res = await instance.post(`${BASE_URL}/api/product/address`, {
+            province,
+            district,
+            ward_street,
+        });
+        return res.data.data;
     } catch (err) {
-      return err;
+        return err;
     }
-  };
+};

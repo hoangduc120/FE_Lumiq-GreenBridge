@@ -1,22 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getAllProducts } from '../../api/productApi';
 
-// Async thunk để fetch sản phẩm
 export const fetchProducts = createAsyncThunk(
     'products/fetchProducts',
     async ({ page = 1, limit = 6, sort = '', search = '' }, { rejectWithValue }) => {
         try {
             const response = await getAllProducts(page, limit, sort, search);
-
-            // Truy cập vào dữ liệu thực tế trong cấu trúc response
-            if (response.data && response.data.data) {
-                return response.data.data;
-            }
-            return {
-                products: [],
-                totalPages: 0,
-                currentPage: page
-            };
+            return response.data;
         } catch (error) {
             return rejectWithValue(error.message || 'Không thể tải sản phẩm');
         }
@@ -26,10 +16,11 @@ export const fetchProducts = createAsyncThunk(
 const initialState = {
     products: [],
     filteredProducts: [],
-    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+    status: 'idle',
     error: null,
     currentPage: 1,
     totalPages: 1,
+    totalProducts: 0,
     priceRange: { min: 0, max: 1000000 },
     sort: '',
     search: ''
@@ -50,13 +41,14 @@ const productSlice = createSlice({
         },
         setPriceRange: (state, action) => {
             state.priceRange = action.payload;
-            // Áp dụng bộ lọc giá cho sản phẩm hiện tại
             state.filteredProducts = state.products.filter(
                 product => product.price >= action.payload.min && product.price <= action.payload.max
             );
         },
         resetFilters: (state) => {
             state.priceRange = { min: 0, max: 1000000 };
+            state.sort = '';
+            state.search = '';
             state.filteredProducts = state.products;
         }
     },
@@ -68,12 +60,12 @@ const productSlice = createSlice({
             })
             .addCase(fetchProducts.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                // Xử lý kết quả từ API
                 state.products = action.payload.products || [];
                 state.filteredProducts = action.payload.products || [];
                 state.totalPages = action.payload.totalPages || 1;
+                state.currentPage = action.payload.currentPage || 1;
+                state.totalProducts = action.payload.totalProducts || 0;
 
-                // Áp dụng lại bộ lọc giá nếu có
                 if (state.priceRange.min > 0 || state.priceRange.max < 1000000) {
                     state.filteredProducts = state.products.filter(
                         product => product.price >= state.priceRange.min && product.price <= state.priceRange.max
@@ -95,4 +87,4 @@ export const {
     resetFilters
 } = productSlice.actions;
 
-export default productSlice.reducer; 
+export default productSlice.reducer;

@@ -115,19 +115,35 @@ const Cart = () => {
 
   // Get item ID based on cart type
   const getItemId = (item) => {
-    return user ? item.productId._id : item.id;
+    if (user) {
+      return item.productId?._id || item.productId; // Trả về _id nếu productId là object, hoặc productId nếu đã là string
+    } else {
+      return item.id;
+    }
   };
 
   // Get item details based on cart type
   const getItemDetails = (item) => {
     if (user) {
-      return {
-        id: item.productId._id,
-        name: item.productId.productName || 'Sản phẩm không tên',
-        price: item.productId.price || 0,
-        image: item.productId.image || '/placeholder.svg',
-        quantity: item.quantity || 1
-      };
+      // Kiểm tra nếu productId là object hay string
+      if (typeof item.productId === 'object' && item.productId !== null) {
+        return {
+          id: item.productId._id,
+          name: item.productId.name || 'Sản phẩm không tên',
+          price: item.productId.price || 0,
+          image: item.productId.photos?.[0]?.url || '/placeholder.svg',
+          quantity: item.quantity || 1
+        };
+      } else {
+        // Nếu chỉ có ID mà không có thông tin sản phẩm đầy đủ
+        return {
+          id: item.productId,
+          name: 'Sản phẩm không tên',
+          price: 0,
+          image: '/placeholder.svg',
+          quantity: item.quantity || 1
+        };
+      }
     } else {
       return {
         id: item.id,
