@@ -1,42 +1,34 @@
-import React from 'react'
-import { Rate } from 'antd';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getReviewsByProductIdThunk, selectReviews, selectReviewsLoading } from "../redux/slices/reviewSlice";
 
-const CustomerReview = () => {
+const CustomerReview = ({ productId }) => {
+    const dispatch = useDispatch();
+    const reviews = useSelector(selectReviews);
+    const loading = useSelector(selectReviewsLoading);
+
+    useEffect(() => {
+        dispatch(getReviewsByProductIdThunk({ productId, page: 1, limit: 10 }));
+    }, [dispatch, productId]);
+
+    if (loading) return <p>Đang tải...</p>;
+    if (!reviews.length) return <p>Chưa có đánh giá nào</p>;
+
     return (
-        <div className="rounded border p-6 relative">
-            <div className="mb-4 flex items-center">
-                <div className="mr-4 h-12 w-12 overflow-hidden rounded-full">
-                    <img
-                        src="/placeholder.svg?height=48&width=48"
-                        alt="Kolf Khawaja"
-                        className="h-full w-full object-cover"
-                    />
+        <div className="p-4">
+            <h2 className="text-xl font-bold mb-4">Đánh giá sản phẩm</h2>
+            {reviews.map((review) => (
+                <div key={review._id} className="border-b py-2">
+                    <p className="font-semibold">{review.author.name}</p>
+                    <p>Rating: {review.rating}/5</p>
+                    <p>{review.comment}</p>
+                    <p className="text-sm text-gray-500">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                    </p>
                 </div>
-                <div>
-                    <p className="font-medium">Kolf Khawaja</p>
-                    <div className="flex items-center">
-                        <div className='flex'>
-                            <Rate disabled defaultValue={4} />
-                        </div>
-                        <span className="ml-2 text-sm text-gray-500">(150 Reviews)</span>
-                    </div>
-                </div>
-            </div>
-            <p className="text-gray-700 mb-10">
-                I'm really happy with my Banyan Tree for Desk!
-            </p>
-
-            {/* Contact button positioned at bottom right */}
-            <div className="absolute bottom-4 right-4">
-                <Link to="/rating-review">
-                    <button className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-400 cursor-pointer">
-                        Contact
-                    </button>
-                </Link>
-            </div>
+            ))}
         </div>
     );
-}
+};
 
-export default CustomerReview
+export default CustomerReview;
