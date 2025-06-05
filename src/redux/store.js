@@ -5,6 +5,7 @@ import productDetailSlice from './slices/productDetailSlice';
 import momoReducer from './slices/momoSlice';
 import vnpayReducer from './slices/vnpaySlice';
 import orderReducer from './slices/orderSlice';
+import reviewReducer from './slices/reviewSlice';
 
 const store = configureStore({
     reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
         momo: momoReducer,
         vnpay: vnpayReducer,
         order: orderReducer,
+        reviews: reviewReducer,
     },
 });
 

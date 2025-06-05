@@ -21,7 +21,6 @@ const ProductDetail = () => {
     const dispatch = useDispatch();
 
     const { product, status, error } = useSelector((state) => state.productDetail);
-    console.log(product)
     const cartLoading = useSelector(selectCartLoading);
     const shouldNavigateToCart = useSelector(selectShouldNavigateToCart);
 
@@ -47,7 +46,6 @@ const ProductDetail = () => {
     }, [shouldNavigateToCart, navigate, dispatch]);
 
     const toggleFavorite = async () => {
-        // TODO: Thêm API để lưu trạng thái yêu thích
         setIsFavorite(!isFavorite);
         toast.info(isFavorite ? 'Đã xóa khỏi yêu thích' : 'Đã thêm vào yêu thích');
     };
