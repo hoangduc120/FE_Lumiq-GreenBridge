@@ -25,7 +25,6 @@ const AddPlant = () => {
     form
       .validateFields(currentFields) // Validate only the current step's fields
       .then((values) => {
-        console.log('Validation passed with values:', values);
         if (currentStep < steps.length) {
           setCurrentStep(currentStep + 1);
         }
@@ -44,8 +43,7 @@ const AddPlant = () => {
 
   const handleFinish = async () => {
     try {
-      const values = await form.validateFields(); // Validate all fields on finish
-      console.log('Form values before submission:', values);
+      const values = await form.validateFields(); 
 
       const formData = new FormData();
       Object.keys(values).forEach((key) => {
