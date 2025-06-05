@@ -28,7 +28,6 @@ export const getAllProducts = async (page = 1, limit = 6, sort = '', search = ''
 export const getProductById = async (id) => {
     try {
         const response = await instance.get(`${BASE_URL}/${id}`);
-        console.log('Product API response:', response);
         return response.data;
     } catch (error) {
         console.error('Error fetching product:', error);
