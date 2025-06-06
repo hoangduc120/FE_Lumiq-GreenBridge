@@ -19,6 +19,7 @@ export const getReviewsByProductIdThunk = createAsyncThunk(
     async ({ productId, page, limit }, { rejectWithValue }) => {
         try {
             const response = await getReviewsByProductId(productId, page, limit);
+            console.log("2", response.data);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.message || 'Failed to get reviews');
@@ -115,7 +116,7 @@ const reviewSlice = createSlice({
             })
             .addCase(deleteReviewThunk.fulfilled, (state, action) => {
                 state.loading = false;
-                state.reviews = state.reviews.filter(review => review.id !== action.payload.reviewId);
+                state.reviews = state.reviews.filter(review => review._id !== action.payload.reviewId);
             })
             .addCase(deleteReviewThunk.rejected, (state, action) => {
                 state.loading = false;
