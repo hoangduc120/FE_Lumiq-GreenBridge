@@ -19,6 +19,7 @@ export const getAllProducts = async (page = 1, limit = 6, sort = '', search = ''
             params: { page, limit, sort, search }
         });
         // Trả về toàn bộ response để xử lý ở Redux
+        console.log("1",response.data);
         return response;
     } catch (error) {
         console.error('API error details:', error);

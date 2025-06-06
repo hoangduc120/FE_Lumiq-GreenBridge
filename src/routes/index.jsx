@@ -37,6 +37,7 @@ export default function AppRoutes() {
         <Route path="/viewall" element={<ViewAllProduct />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/rating-review" element={<RatingAndReview />} />
+        <Route path="/rating-review/:productId" element={<RatingAndReview />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/payment/momo-return" element={<PaymentResult />} />
