@@ -27,6 +27,7 @@ import GardenerRegister from "../mainPage/GardenerRegister";
 import AddCategory from "../mainPage/admin/AddCategory";
 import Chatbox from "../mainPage/chatbox";
 import ManageGardenerProfile from "../mainPage/admin/ManageGardenerProfile";
+import VietQRPaymentPage from "../mainPage/VietQRPayment";
 
 export default function AppRoutes() {
   return (
@@ -50,6 +51,7 @@ export default function AppRoutes() {
         <Route path="/manage-blog" element={<ManageBlog />} />
         <Route path="/package/:id" element={<RegisterPackage />} />
         <Route path="/gardener-register" element={<GardenerRegister />} />
+        <Route path="/payment/vietqr/:orderId" element={<VietQRPaymentPage />} />
         {gardenerRoutes}
       </Route>
       <Route path="/admin" element={<AdminLayout />}>
