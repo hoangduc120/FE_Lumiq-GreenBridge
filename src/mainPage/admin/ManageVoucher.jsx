@@ -305,8 +305,8 @@ function ManageVoucher() {
                   value && value.length === 2 && value[0] && value[1]
                     ? Promise.resolve()
                     : Promise.reject(
-                        "Vui lòng chọn đầy đủ ngày bắt đầu và kết thúc"
-                      ),
+                      "Vui lòng chọn đầy đủ ngày bắt đầu và kết thúc"
+                    ),
               },
             ]}
           >
