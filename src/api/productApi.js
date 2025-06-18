@@ -1,6 +1,6 @@
 import instance from "./axios";
 
-const BASE_URL = "https://be-lumiq-greenbrige-a0kh.onrender.com/product";
+const BASE_URL = "http://localhost:5000/product";
 
 export const createProduct = async (productData) => {
     try {

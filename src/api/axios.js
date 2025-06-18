@@ -2,7 +2,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 
-const BASE_URL = 'https://be-lumiq-greenbrige-a0kh.onrender.com';
+const BASE_URL = 'http://localhost:5000';
 axios.defaults.withCredentials = true;
 
 const instance = axios.create({

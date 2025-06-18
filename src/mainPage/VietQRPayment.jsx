@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import StepProgressBar from "../utils/ProgressBar";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Lottie from "lottie-react";
 import sus from "../animations/sus.json";
 import axiosInstance from "../api/axios";
+import { SocketContext } from "../context/SocketContext";
 
 const bgGreen = "#34c759";
 
@@ -14,7 +15,8 @@ const VietQRPaymentPage = () => {
   const [orderInfo, setOrderInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const socket = useContext(SocketContext);
+  const [orderData, setOrderData] = useState(null);
   useEffect(() => {
     setLoading(true);
     setError("");
@@ -23,6 +25,7 @@ const VietQRPaymentPage = () => {
       .then((res) => {
         const order = res.data?.order;
         if (order) {
+          setOrderData(order);
           setOrderInfo({
             vietqrUrl: order.vietqrUrl,
             totalCartPrice: order.totalAmount,
@@ -38,6 +41,40 @@ const VietQRPaymentPage = () => {
       .catch(() => setError("Không tìm thấy đơn hàng."))
       .finally(() => setLoading(false));
   }, [orderId]);
+
+  useEffect(() => {
+    if (!orderData?.orderId) return;
+
+    console.log("🔗 Joining order room:", orderData.orderId);
+    socket.emit("joinOrder", orderData.orderId);
+
+    const handlePaymentSuccess = (data, eventType = "room") => {
+      console.log(`🎉 Payment success event received (${eventType}):`, data);
+      console.log("🔍 Comparing orderIds:", {
+        received: data.orderId,
+        current: orderData.orderId,
+        match: data.orderId === orderData.orderId
+      });
+      
+      if (data.orderId === orderData.orderId) {
+        console.log("✅ OrderId match! Navigating to thank-you page...");
+        navigate("/thank-you", { state: { orderId: data.orderId } });
+      } else {
+        console.log("❌ OrderId mismatch - no navigation");
+      }
+    };
+
+    // Listen cho room-specific event
+    socket.on("payment_success", (data) => handlePaymentSuccess(data, "room"));
+    
+    // Listen cho global fallback event
+    socket.on("payment_success_global", (data) => handlePaymentSuccess(data, "global"));
+
+    return () => {
+      socket.off("payment_success");
+      socket.off("payment_success_global");
+    };
+  }, [orderData, socket, navigate]);
 
   if (loading)
     return (
