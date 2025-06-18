@@ -254,7 +254,7 @@ const Payment = () => {
   
     try {
       const orderResponse = await axiosInstance.post(
-        `http://localhost:5000/orders`,
+        `/orders`,
         {
           orderId: orderData.id, 
           shippingAddress: { address: fullAddress },

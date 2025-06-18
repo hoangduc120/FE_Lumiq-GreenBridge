@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import StepProgressBar from "../utils/ProgressBar";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Lottie from "lottie-react";
 import sus from "../animations/sus.json";
-import axiosInstance from "../api/axios";
-import { SocketContext } from "../context/SocketContext";
+import { io } from "socket.io-client";
 
 const bgGreen = "#34c759";
 
@@ -15,15 +14,18 @@ const VietQRPaymentPage = () => {
   const [orderInfo, setOrderInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const socket = useContext(SocketContext);
   const [orderData, setOrderData] = useState(null);
   useEffect(() => {
     setLoading(true);
     setError("");
-    axiosInstance
-      .get(`/orders/${orderId}`)
-      .then((res) => {
-        const order = res.data?.order;
+    
+    fetch(`https://be-lumiq-greenbrige-a0kh.onrender.com/orders/${orderId}`, {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then((data) => {
+        const order = data?.order;
         if (order) {
           setOrderData(order);
           setOrderInfo({
@@ -45,8 +47,16 @@ const VietQRPaymentPage = () => {
   useEffect(() => {
     if (!orderData?.orderId) return;
 
-    console.log("🔗 Joining order room:", orderData.orderId);
-    socket.emit("joinOrder", orderData.orderId);
+    console.log("🔗 Creating production socket connection...");
+    const prodSocket = io("https://be-lumiq-greenbrige-a0kh.onrender.com", {
+      withCredentials: true,
+    });
+
+    prodSocket.on("connect", () => {
+      console.log("✅ Connected to production server:", prodSocket.id);
+      console.log("🔗 Joining order room:", orderData.orderId);
+      prodSocket.emit("joinOrder", orderData.orderId);
+    });
 
     const handlePaymentSuccess = (data, eventType = "room") => {
       console.log(`🎉 Payment success event received (${eventType}):`, data);
@@ -64,17 +74,23 @@ const VietQRPaymentPage = () => {
       }
     };
 
-    // Listen cho room-specific event
-    socket.on("payment_success", (data) => handlePaymentSuccess(data, "room"));
+    prodSocket.on("payment_success", (data) => handlePaymentSuccess(data, "room"));
     
-    // Listen cho global fallback event
-    socket.on("payment_success_global", (data) => handlePaymentSuccess(data, "global"));
+    prodSocket.on("payment_success_global", (data) => handlePaymentSuccess(data, "global"));
+
+    prodSocket.on("disconnect", () => {
+      console.log("🔌 Disconnected from production server");
+    });
 
     return () => {
-      socket.off("payment_success");
-      socket.off("payment_success_global");
+      console.log("🧹 Cleaning up production socket...");
+      prodSocket.off("payment_success");
+      prodSocket.off("payment_success_global");
+      prodSocket.off("connect");
+      prodSocket.off("disconnect");
+      prodSocket.disconnect();
     };
-  }, [orderData, socket, navigate]);
+  }, [orderData?.orderId, navigate]);
 
   if (loading)
     return (
