@@ -14,7 +14,7 @@ import {
   CaretDownFilled,
 } from "@ant-design/icons";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../api/axios";
 
 const { Header, Sider, Content } = Layout;
 
@@ -28,7 +28,7 @@ const AdminLayout = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/user/profile", {
+        const res = await axiosInstance.get("/user/profile", {
           withCredentials: true,
         });
         setUser(res.data.data.user);
@@ -43,8 +43,8 @@ const AdminLayout = () => {
   // Handle logout
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "http://localhost:5000/auth/logout",
+      await axiosInstance.post(
+        "h/auth/logout",
         {},
         { withCredentials: true }
       );

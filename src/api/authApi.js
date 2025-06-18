@@ -1,7 +1,6 @@
 import axiosInstance from './axios';
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:5000/auth";
 
 export const loginEmail = async (email, password) => {
   try {
