@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { createMomoPaymentThunk } from "../redux/slices/momoSlice";
@@ -35,7 +35,6 @@ const Payment = () => {
     verificationResult: vnpayResult,
   } = useSelector((state) => state.vnpay);
 
-  const [paymentMethod, setPaymentMethod] = useState("momo");
   const [orderData, setOrderData] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -134,9 +133,6 @@ const Payment = () => {
     vnpaySuccess,
   ]);
 
-  const handlePaymentMethodChange = (event) => {
-    setPaymentMethod(event.target.value);
-  };
 
   const handlePayment = async (paymentMethod) => {
     if (!orderData) {
@@ -173,9 +169,7 @@ const Payment = () => {
     }
   };
 
-  const handleCancel = () => {
-    navigate("/cart");
-  };
+
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -295,7 +289,7 @@ const Payment = () => {
 
     try {
       const orderResponse = await axiosInstance.post(
-        `http://localhost:5000/orders`,
+        `/orders`,
         {
           orderId: orderData.id,
           shippingAddress: { address: fullAddress },
@@ -638,6 +632,29 @@ const Payment = () => {
                   <span className="relative z-10 group-hover:text-white transition-colors duration-500 ease-in-out">
                     Pay with VietQR
                   </span>
+                </button>
+                {/* Debug webhook button - remove after testing */}
+                <button
+                  onClick={async () => {
+                    if (!orderData?.id) return;
+                    try {
+                      const response = await fetch('http://localhost:5000/payment/webhook', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          content: `${orderData.id} FT25169254691284 Ma giao dich Trace908499 Trace 908499`,
+                          transferAmount: orderData.totalAmount
+                        })
+                      });
+                      const result = await response.json();
+                      console.log('Debug webhook result:', result);
+                    } catch (error) {
+                      console.error('Debug webhook error:', error);
+                    }
+                  }}
+                  className="mt-4 px-4 py-2 bg-gray-500 text-white rounded-lg"
+                >
+                  🐛 Test Webhook
                 </button>
               </div>
             </div>

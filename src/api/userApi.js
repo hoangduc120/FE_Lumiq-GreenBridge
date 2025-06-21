@@ -1,6 +1,7 @@
 import instance from './axios';
 
-const BASE_URL = 'http://localhost:5000/user';
+const BASE_URL = 'https://be-lumiq-greenbrige-a0kh.onrender.com/user';
+// server: https://be-lumiq-greenbrige-a0kh.onrender.com
 
 export const getUserById = async (id) => {
   try {

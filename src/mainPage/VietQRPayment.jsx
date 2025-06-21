@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import StepProgressBar from "../utils/ProgressBar";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Lottie from "lottie-react";
 import sus from "../animations/sus.json";
-import axiosInstance from "../api/axios";
+import { io } from "socket.io-client";
 
 const bgGreen = "#34c759";
 
@@ -14,15 +14,20 @@ const VietQRPaymentPage = () => {
   const [orderInfo, setOrderInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const [orderData, setOrderData] = useState(null);
   useEffect(() => {
     setLoading(true);
     setError("");
-    axiosInstance
-      .get(`/orders/${orderId}`)
-      .then((res) => {
-        const order = res.data?.order;
+    
+    fetch(`https://be-lumiq-greenbrige-a0kh.onrender.com/orders/${orderId}`, {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then((data) => {
+        const order = data?.order;
         if (order) {
+          setOrderData(order);
           setOrderInfo({
             vietqrUrl: order.vietqrUrl,
             totalCartPrice: order.totalAmount,
@@ -38,6 +43,54 @@ const VietQRPaymentPage = () => {
       .catch(() => setError("Không tìm thấy đơn hàng."))
       .finally(() => setLoading(false));
   }, [orderId]);
+
+  useEffect(() => {
+    if (!orderData?.orderId) return;
+
+    console.log("🔗 Creating production socket connection...");
+    const prodSocket = io("https://be-lumiq-greenbrige-a0kh.onrender.com", {
+      withCredentials: true,
+    });
+
+    prodSocket.on("connect", () => {
+      console.log("✅ Connected to production server:", prodSocket.id);
+      console.log("🔗 Joining order room:", orderData.orderId);
+      prodSocket.emit("joinOrder", orderData.orderId);
+    });
+
+    const handlePaymentSuccess = (data, eventType = "room") => {
+      console.log(`🎉 Payment success event received (${eventType}):`, data);
+      console.log("🔍 Comparing orderIds:", {
+        received: data.orderId,
+        current: orderData.orderId,
+        match: data.orderId === orderData.orderId
+      });
+      
+      if (data.orderId === orderData.orderId) {
+        console.log("✅ OrderId match! Navigating to thank-you page...");
+        navigate("/thank-you", { state: { orderId: data.orderId } });
+      } else {
+        console.log("❌ OrderId mismatch - no navigation");
+      }
+    };
+
+    prodSocket.on("payment_success", (data) => handlePaymentSuccess(data, "room"));
+    
+    prodSocket.on("payment_success_global", (data) => handlePaymentSuccess(data, "global"));
+
+    prodSocket.on("disconnect", () => {
+      console.log("🔌 Disconnected from production server");
+    });
+
+    return () => {
+      console.log("🧹 Cleaning up production socket...");
+      prodSocket.off("payment_success");
+      prodSocket.off("payment_success_global");
+      prodSocket.off("connect");
+      prodSocket.off("disconnect");
+      prodSocket.disconnect();
+    };
+  }, [orderData?.orderId, navigate]);
 
   if (loading)
     return (
