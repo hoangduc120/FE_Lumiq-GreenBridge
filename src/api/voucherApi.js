@@ -53,6 +53,14 @@ const voucherApi = {
       throw error.response?.data || error;
     }
   },
+  getAvailableVouchers: async () => {
+    try {
+      const response = await instance.get("/voucher/available/user");
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
 };
 
 export default voucherApi;
