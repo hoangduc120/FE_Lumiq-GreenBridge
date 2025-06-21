@@ -41,13 +41,22 @@ const RegisterPackage = () => {
   }, [id, navigate]);
 
   const handleRegister = async () => {
-    setRegistering(true);
-    setTimeout(() => {
-      message.success(
-        "Đăng ký gói thành công! Chúc bạn trải nghiệm tuyệt vời cùng GreenBridge."
-      );
-      navigate("/membership");
-    }, 1200);
+    try {
+      setRegistering(true);
+      const response = await packageApi.register(id);
+      console.log("Register response:", response);
+
+      setTimeout(() => {
+        message.success(
+          "Đăng ký gói thành công! Chúc bạn trải nghiệm tuyệt vời cùng GreenBridge."
+        );
+        navigate("/membership");
+      }, 1200);
+    } catch (error) {
+      message.error(error?.message || "Đăng ký gói thất bại");
+      setRegistering(false);
+      return;
+    }
   };
 
   if (loading) {

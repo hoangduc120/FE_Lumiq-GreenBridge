@@ -536,7 +536,7 @@ const Payment = () => {
                             <div className="flex w-full">
                               <div className="flex-shrink-0 w-1/6 flex items-center justify-center border-r border-dashed border-orange-300">
                                 <div className="text-2xl font-bold text-orange-500">
-                                  {item.code}
+                                  #{item.code}
                                 </div>
                               </div>
                               <div className="flex-grow px-4 py-2">
