@@ -26,6 +26,8 @@ import RegisterPackage from "../mainPage/RegisterPackage";
 import GardenerRegister from "../mainPage/GardenerRegister";
 import AddCategory from "../mainPage/admin/AddCategory";
 import Chatbox from "../mainPage/chatbox";
+import ManageGardenerProfile from "../mainPage/admin/ManageGardenerProfile";
+import VietQRPaymentPage from "../mainPage/VietQRPayment";
 
 export default function AppRoutes() {
   return (
@@ -36,6 +38,7 @@ export default function AppRoutes() {
         <Route path="/viewall" element={<ViewAllProduct />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/rating-review" element={<RatingAndReview />} />
+        <Route path="/rating-review/:productId" element={<RatingAndReview />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/payment/momo-return" element={<PaymentResult />} />
@@ -49,6 +52,7 @@ export default function AppRoutes() {
         <Route path="/manage-blog" element={<ManageBlog />} />
         <Route path="/package/:id" element={<RegisterPackage />} />
         <Route path="/gardener-register" element={<GardenerRegister />} />
+        <Route path="/payment/vietqr/:orderId" element={<VietQRPaymentPage />} />
         {gardenerRoutes}
       </Route>
       <Route path="/admin" element={<AdminLayout />}>
@@ -56,6 +60,7 @@ export default function AppRoutes() {
         <Route path="manage-package" element={<ManagePackage />} />
         <Route path="manage-voucher" element={<ManageVoucher />} />
         <Route path="add-category" element={<AddCategory />} />
+        <Route path="manage-gardener-profile" element={<ManageGardenerProfile />} />
       </Route>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/profile" element={<Profile />} />

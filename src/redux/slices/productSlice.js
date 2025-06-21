@@ -6,6 +6,7 @@ export const fetchProducts = createAsyncThunk(
     async ({ page = 1, limit = 6, sort = '', search = '' }, { rejectWithValue }) => {
         try {
             const response = await getAllProducts(page, limit, sort, search);
+            console.log(response.data);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.message || 'Không thể tải sản phẩm');

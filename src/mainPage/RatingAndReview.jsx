@@ -1,167 +1,304 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams, Link } from 'react-router-dom';
+import { Rate, Modal, Form, Input, Button, message, Card, Avatar, Breadcrumb } from 'antd';
+import { HomeOutlined, ProductOutlined } from '@ant-design/icons';
 import ViewAllProduct from './ViewAllProduct';
-import { Rate } from 'antd';
+import { fetProductById } from '../redux/slices/productDetailSlice';
+import {
+    createReviewThunk,
+    getReviewsByProductIdThunk,
+    selectReviews,
+    selectReviewsLoading,
+    selectReviewsError,
+    selectTotalReviews,
+    clearError
+} from '../redux/slices/reviewSlice';
+
+const { TextArea } = Input;
 
 const RatingAndReview = () => {
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [form] = Form.useForm();
+    const dispatch = useDispatch();
+    const { productId } = useParams();
+
+    const reviews = useSelector(selectReviews);
+    const loading = useSelector(selectReviewsLoading);
+    const error = useSelector(selectReviewsError);
+    const totalReviews = useSelector(selectTotalReviews);
+    const { product } = useSelector((state) => state.productDetail);
+
+    // Tính toán rating trung bình
+    const averageRating = reviews.length > 0
+        ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+        : 0;
+
+    // Tính toán phân bố rating
+    const ratingDistribution = [5, 4, 3, 2, 1].map(rating => {
+        const count = reviews.filter(review => review.rating === rating).length;
+        const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+        return { rating, count, percentage };
+    });
+
+    useEffect(() => {
+        if (productId) {
+            dispatch(getReviewsByProductIdThunk({ productId, page: 1, limit: 20 }));
+            dispatch(fetProductById(productId));
+        }
+    }, [dispatch, productId]);
+
+    useEffect(() => {
+        if (error) {
+            message.error(error);
+            dispatch(clearError());
+        }
+    }, [error, dispatch]);
+
+    const showModal = () => {
+        setIsModalVisible(true);
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+        form.resetFields();
+    };
+
+    const handleSubmit = async (values) => {
+        try {
+            await dispatch(createReviewThunk({
+                productId,
+                reviewData: {
+                    comment: values.comment,
+                    rating: values.rating
+                }
+            })).unwrap();
+
+            message.success('Đánh giá đã được tạo thành công!');
+            setIsModalVisible(false);
+            form.resetFields();
+
+            // Refresh reviews
+            dispatch(getReviewsByProductIdThunk({ productId, page: 1, limit: 20 }));
+        } catch (error) {
+            message.error(error || 'Có lỗi xảy ra khi tạo đánh giá');
+        }
+    };
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
+    if (!productId) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <div className="text-center py-20">
+                    <h1 className="text-2xl font-bold text-gray-600 mb-4">Vui lòng chọn sản phẩm để xem đánh giá</h1>
+                    <Link to="/viewall">
+                        <Button type="primary" size="large">
+                            Xem sản phẩm
+                        </Button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="container mx-auto px-4 py-8">
+            {/* Breadcrumb */}
+            <Breadcrumb className="mb-6">
+                <Breadcrumb.Item>
+                    <Link to="/">
+                        <HomeOutlined />
+                    </Link>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                    <Link to="/viewall">
+                        <ProductOutlined />
+                        <span className="ml-1">Sản phẩm</span>
+                    </Link>
+                </Breadcrumb.Item>
+                {product && (
+                    <Breadcrumb.Item>
+                        <Link to={`/product/${productId}`}>
+                            {product.name}
+                        </Link>
+                    </Breadcrumb.Item>
+                )}
+                <Breadcrumb.Item>Đánh giá</Breadcrumb.Item>
+            </Breadcrumb>
+
+            {/* Product Info Card */}
+            {product && (
+                <Card className="mb-8 shadow-sm">
+                    <div className="flex items-center space-x-4">
+                        <img
+                            src={product.photos?.[0]?.url || 'https://via.placeholder.com/100'}
+                            alt={product.name}
+                            className="w-20 h-20 object-cover rounded-lg"
+                        />
+                        <div className="flex-1">
+                            <h2 className="text-xl font-bold text-gray-800">{product.name}</h2>
+                            <p className="text-lg font-semibold text-green-600">
+                                {product.price?.toLocaleString()}đ
+                            </p>
+                            {product.gardener && (
+                                <p className="text-gray-600">
+                                    Người trồng: {product.gardener.email}
+                                </p>
+                            )}
+                        </div>
+                        <Link to={`/product/${productId}`}>
+                            <Button type="default">
+                                Xem chi tiết sản phẩm
+                            </Button>
+                        </Link>
+                    </div>
+                </Card>
+            )}
+
             <div className="mb-8 rounded-lg border p-6">
-                {/* Seller Profile */}
+                {/* Header với nút tạo đánh giá */}
+                <div className="mb-6 flex justify-between items-center">
+                    <h1 className="text-2xl font-bold">Tất cả đánh giá sản phẩm</h1>
+                    <Button
+                        type="primary"
+                        onClick={showModal}
+                        className="bg-green-500 hover:bg-green-600 border-green-500"
+                    >
+                        Viết đánh giá
+                    </Button>
+                </div>
+
+                {/* Tổng quan đánh giá */}
                 <div className="mb-8 flex flex-col items-center md:flex-row md:items-start">
                     <div className="mb-4 flex flex-col items-center md:mb-0 md:mr-8">
-                        <div className="mb-2 h-24 w-24 overflow-hidden rounded-full">
-                            <img
-                                src="/placeholder.svg?height=96&width=96"
-                                alt="Alex Ng"
-                                className="h-full w-full object-cover"
-                            />
-                        </div>
-                        <h1 className="text-2xl font-bold">Alex Ng</h1>
-                        <p className="text-green-500">alex@gmail.com</p>
-
-                        <div className="mt-4 flex flex-col items-center">
-                            <div className="text-6xl font-bold">4.8</div>
-                            <div className="mb-1 rounded bg-green-500 px-2 py-0.5 text-xs text-white">(125 reviews)</div>
+                        <div className="text-6xl font-bold text-green-600">{averageRating}</div>
+                        <Rate disabled defaultValue={parseFloat(averageRating)} className="mb-2" />
+                        <div className="rounded bg-green-500 px-3 py-1 text-sm text-white">
+                            ({totalReviews} đánh giá)
                         </div>
                     </div>
 
                     {/* Rating Bars */}
                     <div className="flex-1">
-                        <div className="mb-1 flex items-center">
-                            <span className="mr-2 w-3">5</span>
-                            <div className="flex-1 overflow-hidden rounded-full bg-gray-200">
-                                <div className="h-5 w-[100%] rounded-full bg-blue-500"></div>
+                        {ratingDistribution.map(({ rating, percentage }) => (
+                            <div key={rating} className="mb-2 flex items-center">
+                                <span className="mr-3 w-3 text-sm">{rating}</span>
+                                <div className="flex-1 overflow-hidden rounded-full bg-gray-200">
+                                    <div
+                                        className="h-4 rounded-full bg-green-500 transition-all duration-300"
+                                        style={{ width: `${percentage}%` }}
+                                    ></div>
+                                </div>
+                                <span className="ml-3 text-sm text-gray-600">{percentage.toFixed(1)}%</span>
                             </div>
-                        </div>
-                        <div className="mb-1 flex items-center">
-                            <span className="mr-2 w-3">4</span>
-                            <div className="flex-1 overflow-hidden rounded-full bg-gray-200">
-                                <div className="h-5 w-[80%] rounded-full bg-blue-500"></div>
-                            </div>
-                        </div>
-                        <div className="mb-1 flex items-center">
-                            <span className="mr-2 w-3">3</span>
-                            <div className="flex-1 overflow-hidden rounded-full bg-gray-200">
-                                <div className="h-5 w-[60%] rounded-full bg-blue-500"></div>
-                            </div>
-                        </div>
-                        <div className="mb-1 flex items-center">
-                            <span className="mr-2 w-3">2</span>
-                            <div className="flex-1 overflow-hidden rounded-full bg-gray-200">
-                                <div className="h-5 w-[40%] rounded-full bg-blue-500"></div>
-                            </div>
-                        </div>
-                        <div className="mb-1 flex items-center">
-                            <span className="mr-2 w-3">1</span>
-                            <div className="flex-1 overflow-hidden rounded-full bg-gray-200">
-                                <div className="h-5 w-[20%] rounded-full bg-blue-500"></div>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* Reviews */}
+                {/* Danh sách đánh giá */}
                 <div className="space-y-6">
-                    {/* Review 1 */}
-                    <div className="relative border-b pb-6">
-                        <div className="flex items-start">
-                            <div className="mr-4 h-12 w-12 overflow-hidden rounded-full">
-                                <img
-                                    src="/placeholder.svg?height=48&width=48"
-                                    alt="John Smith"
-                                    className="h-full w-full object-cover"
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="font-medium">John Smith</p>
-                                        <div className="flex text-yellow-400">
-                                            <span className="mr-1">★</span>
-                                            <span className="mr-1">★</span>
-                                            <span className="mr-1">★</span>
-                                            <span className="mr-1">★</span>
-                                            <span>★</span>
-                                        </div>
-                                    </div>
-                                    <button className="rounded-full p-1 hover:bg-gray-100">
-                                        {/* MoreVertical SVG */}
-                                        <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <p className="mt-2 text-gray-700">
-                                    Alex is a highly skilled horticulturist
-                                </p>
-                            </div>
+                    {loading ? (
+                        <div className="text-center py-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
+                            <p className="mt-2 text-gray-600">Đang tải đánh giá...</p>
                         </div>
-                    </div>
-
-                    {/* Review 2 */}
-                    <div className="relative">
-                        <div className="flex items-start">
-                            <div className="mr-4 h-12 w-12 overflow-hidden rounded-full">
-                                <img
-                                    src="/placeholder.svg?height=48&width=48"
-                                    alt="Ronlie"
-                                    className="h-full w-full object-cover"
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="font-medium">Ronlie</p>
-                                        <div className="flex text-yellow-400">
-                                            <span className="mr-1">★</span>
-                                            <span className="mr-1">★</span>
-                                            <span className="mr-1">★</span>
-                                            <span className="mr-1">★</span>
-                                            <span className="text-gray-300">★</span>
-                                        </div>
-                                    </div>
-                                    <button className="rounded-full p-1 hover:bg-gray-100">
-                                        {/* MoreVertical SVG */}
-                                        <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <p className="mt-2 text-gray-700">
-                                    Great insights on plant maintenance and design! Alex's advice is practical and effective, though I'd
-                                    love more advanced tips.
-                                </p>
-                            </div>
+                    ) : reviews.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                            <p>Chưa có đánh giá nào cho sản phẩm này</p>
+                            <p className="text-sm mt-1">Hãy là người đầu tiên đánh giá!</p>
                         </div>
-                    </div>
-
-                    {/* Show More Button */}
-                    <div className="flex justify-center pt-4">
-                        <button className="flex items-center text-gray-500 hover:text-gray-700">
-                            <span className="mr-1">Show more</span>
-                            {/* ChevronDown SVG */}
-                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                {/* Sort By */}
-                <div className="mt-6 flex justify-end">
-                    <div className="flex items-center text-sm">
-                        <span className="mr-2 text-gray-600">Sort by:</span>
-                        <select className="rounded border border-gray-300 px-2 py-1">
-                            <option>Most Popular</option>
-                            <option>Newest</option>
-                            <option>Highest Rating</option>
-                            <option>Lowest Rating</option>
-                        </select>
-                    </div>
+                    ) : (
+                        reviews.map((review) => (
+                            <Card key={review._id} className="shadow-sm">
+                                <div className="flex items-start">
+                                    <Avatar
+                                        src={review.author.avatar}
+                                        size={48}
+                                        className="bg-green-500 mr-4"
+                                    >
+                                        {review.author.name ? review.author.name.charAt(0).toUpperCase() : 'U'}
+                                    </Avatar>
+                                    <div className="flex-1">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div>
+                                                <p className="font-medium text-lg">{review.author.name || review.author.email}</p>
+                                                <Rate disabled defaultValue={review.rating} className="text-sm" />
+                                            </div>
+                                            <span className="text-sm text-gray-500">
+                                                {formatDate(review.createdAt)}
+                                            </span>
+                                        </div>
+                                        <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                                    </div>
+                                </div>
+                            </Card>
+                        ))
+                    )}
                 </div>
             </div>
-            <ViewAllProduct />
+
+            {/* Modal tạo đánh giá */}
+            <Modal
+                title="Viết đánh giá"
+                open={isModalVisible}
+                onCancel={handleCancel}
+                footer={null}
+                width={600}
+            >
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleSubmit}
+                >
+                    <Form.Item
+                        name="rating"
+                        label="Đánh giá"
+                        rules={[{ required: true, message: 'Vui lòng chọn số sao đánh giá!' }]}
+                    >
+                        <Rate />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="comment"
+                        label="Nhận xét"
+                        rules={[
+                            { required: true, message: 'Vui lòng nhập nhận xét!' },
+                        ]}
+                    >
+                        <TextArea
+                            rows={4}
+                            placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
+                            showCount
+                            maxLength={500}
+                        />
+                    </Form.Item>
+
+                    <Form.Item className="mb-0">
+                        <div className="flex justify-end space-x-2">
+                            <Button onClick={handleCancel}>
+                                Hủy
+                            </Button>
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                loading={loading}
+                                className="bg-green-500 hover:bg-green-600 border-green-500"
+                            >
+                                Gửi đánh giá
+                            </Button>
+                        </div>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
-}
-export default RatingAndReview
+};
+
+export default RatingAndReview;

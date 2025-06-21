@@ -1,37 +1,45 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { createMomoPaymentThunk } from '../redux/slices/momoSlice';
-import { createVnPayPaymentThunk } from '../redux/slices/vnpaySlice';
-import { setCurrentOrder } from '../redux/slices/orderSlice';
-import { clearCart, fetchCart } from '../redux/slices/cartSlice';
-import StepProgressBar from '../utils/ProgressBar';
-import moment from 'moment';
-import { IoIosArrowRoundBack } from 'react-icons/io';
-import Lottie from 'lottie-react';
-import Edit from '../animations/Edit.json';
-import gsap from 'gsap';
-
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { createMomoPaymentThunk } from "../redux/slices/momoSlice";
+import { createVnPayPaymentThunk } from "../redux/slices/vnpaySlice";
+import { setCurrentOrder } from "../redux/slices/orderSlice";
+import { clearCart, fetchCart } from "../redux/slices/cartSlice";
+import StepProgressBar from "../utils/ProgressBar";
+import moment from "moment";
+import { IoIosArrowRoundBack } from "react-icons/io";
+import Lottie from "lottie-react";
+import Edit from "../animations/Edit.json";
+import gsap from "gsap";
+import axiosInstance from "../api/axios";
 
 const Payment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading: momoLoading, error: momoError, paymentUrl: momoPaymentUrl, success: momoSuccess, verificationResult: momoResult } = useSelector(
-    (state) => state.momo
-  );
-  const { loading: vnpayLoading, error: vnpayError, redirectUrl: vnpayRedirectUrl, success: vnpaySuccess, verificationResult: vnpayResult } = useSelector(
-    (state) => state.vnpay
-  );
+  const {
+    loading: momoLoading,
+    error: momoError,
+    paymentUrl: momoPaymentUrl,
+    success: momoSuccess,
+    verificationResult: momoResult,
+  } = useSelector((state) => state.momo);
+  const {
+    loading: vnpayLoading,
+    error: vnpayError,
+    redirectUrl: vnpayRedirectUrl,
+    success: vnpaySuccess,
+    verificationResult: vnpayResult,
+  } = useSelector((state) => state.vnpay);
 
-  const [paymentMethod, setPaymentMethod] = useState('momo');
+  const [paymentMethod, setPaymentMethod] = useState("momo");
   const [orderData, setOrderData] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [fullAddress, setFullAddress] = useState('');
+  const [fullAddress, setFullAddress] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [editedAddress, setEditedAddress] = useState('');
+  const [editedAddress, setEditedAddress] = useState("");
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
@@ -47,9 +55,9 @@ const Payment = () => {
     if (location.state && location.state.orderData) {
       setOrderData(location.state.orderData);
       dispatch(setCurrentOrder(location.state.orderData));
-      setFullAddress(location.state.orderData.shippingAddress.address || '');
+      setFullAddress(location.state.orderData.shippingAddress.address || "");
     } else {
-      setError('Không tìm thấy thông tin đơn hàng');
+      setError("Không tìm thấy thông tin đơn hàng");
     }
   }, [location, dispatch]);
 
@@ -79,25 +87,31 @@ const Payment = () => {
   }, [momoLoading, vnpayLoading]);
 
   // Debug useEffect để kiểm tra tất cả payment states
-  useEffect(() => {
-  }, [momoPaymentUrl, vnpayRedirectUrl, momoLoading, vnpayLoading, momoError, vnpayError, momoSuccess, vnpaySuccess]);
+  useEffect(() => {}, [
+    momoPaymentUrl,
+    vnpayRedirectUrl,
+    momoLoading,
+    vnpayLoading,
+    momoError,
+    vnpayError,
+    momoSuccess,
+    vnpaySuccess,
+  ]);
 
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
   };
 
-  console.log(orderData)
-
   const handlePayment = async (paymentMethod) => {
     if (!orderData) {
-      setError('Không có thông tin đơn hàng để thanh toán');
+      setError("Không có thông tin đơn hàng để thanh toán");
       return;
     }
 
     setError(null);
 
     // Lấy userId từ localStorage
-    const userFromStorage = localStorage.getItem('user');
+    const userFromStorage = localStorage.getItem("user");
     let userId = null;
 
     if (userFromStorage) {
@@ -105,7 +119,7 @@ const Payment = () => {
         const userData = JSON.parse(userFromStorage);
         userId = userData.id;
       } catch (error) {
-        console.error('Lỗi parse user data:', error);
+        console.error("Lỗi parse user data:", error);
       }
     }
 
@@ -116,16 +130,15 @@ const Payment = () => {
       items: orderData.items,
     };
 
-
-    if (paymentMethod === 'momo') {
+    if (paymentMethod === "momo") {
       dispatch(createMomoPaymentThunk(paymentData));
-    } else if (paymentMethod === 'vnpay') {
+    } else if (paymentMethod === "vnpay") {
       dispatch(createVnPayPaymentThunk(paymentData));
     }
   };
 
   const handleCancel = () => {
-    navigate('/cart');
+    navigate("/cart");
   };
 
   const handleEditClick = () => {
@@ -133,14 +146,14 @@ const Payment = () => {
     setEditedAddress(fullAddress);
     // Mock saved addresses (replace with actual API call if needed)
     setSavedAddresses([
-      { address: '123 Đường ABC, Quận 1, TP.HCM', distance: 2.5 },
-      { address: '456 Đường XYZ, Quận 3, TP.HCM', distance: 4.0 },
+      { address: "123 Đường ABC, Quận 1, TP.HCM", distance: 2.5 },
+      { address: "456 Đường XYZ, Quận 3, TP.HCM", distance: 4.0 },
     ]);
   };
 
   const handleAddressChange = (e) => {
     setEditedAddress(e.target.value);
-    setShowHistory(e.target.value === '');
+    setShowHistory(e.target.value === "");
   };
 
   const handleSaveClick = () => {
@@ -154,38 +167,38 @@ const Payment = () => {
     tl.fromTo(
       buttonBack.current,
       { opacity: 0, x: -200 },
-      { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out' }
+      { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }
     );
     tl.fromTo(
       container.current,
       { scale: 0, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 0.5, ease: 'power3.out' }
+      { scale: 1, opacity: 1, duration: 0.5, ease: "power3.out" }
     );
     tl.fromTo(
       titleOrder.current,
       { opacity: 0, y: -50 },
-      { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }
+      { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }
     );
     tl.fromTo(
       itemsRef.current,
       { opacity: 0, y: -50 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.2, ease: 'power3.out' },
-      '-=0.2'
+      { opacity: 1, y: 0, duration: 0.5, stagger: 0.2, ease: "power3.out" },
+      "-=0.2"
     );
     tl.fromTo(
       shipping.current,
       { opacity: 0, x: -50 },
-      { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out' }
+      { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }
     );
     tl.fromTo(
       payment.current,
       { opacity: 0, x: 50 },
-      { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out' }
+      { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }
     );
     tl.fromTo(
       paymentButtonsRef.current,
       { opacity: 0, x: -50 },
-      { opacity: 1, x: 0, duration: 0.5, stagger: 0.2, ease: 'power3.out' }
+      { opacity: 1, x: 0, duration: 0.5, stagger: 0.2, ease: "power3.out" }
     );
   }, []);
 
@@ -193,10 +206,10 @@ const Payment = () => {
     if ((momoSuccess && momoResult) || (vnpaySuccess && vnpayResult)) {
       dispatch(fetchCart())
         .then(() => {
-          console.log('Đã cập nhật giỏ hàng sau thanh toán thành công');
+          console.log("Đã cập nhật giỏ hàng sau thanh toán thành công");
         })
         .catch((error) => {
-          console.error('Lỗi khi cập nhật giỏ hàng:', error);
+          console.error("Lỗi khi cập nhật giỏ hàng:", error);
           dispatch(clearCart());
         });
     }
@@ -229,15 +242,59 @@ const Payment = () => {
     );
   }
 
+
+  const handleQRPay = async () => {
+    if (!orderData || !fullAddress) {
+      setError("Please provide complete order details and address.");
+      return;
+    }
+  
+    setIsLoading(true);
+    setError(null);
+  
+    const formattedItems = orderData.items.map(item => ({
+      productId: item.id,        
+      quantity: item.quantity,
+      price: item.price,
+    }));
+  
+    try {
+      const orderResponse = await axiosInstance.post(
+        `http://localhost:5000/orders`,
+        {
+          orderId: orderData.id, 
+          shippingAddress: { address: fullAddress },
+          paymentMethod: "vietqr",
+          items: formattedItems,
+          totalAmount: orderData.totalAmount,
+        }
+      );
+  
+      const { order } = orderResponse.data;
+      if (!order) throw new Error("Order creation failed");
+  
+      navigate(`/payment/vietqr/${order.orderId}`);
+      
+    } catch (error) {
+      setError(`Error: ${error.response?.data.message || error.message}`);
+      console.log("Backend error response:", error.response?.data);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  
   return (
-    <div className="pt-12 h-full bg-primary dark:bg-darkBg transition-colors duration-500 ease-in-out">
+    <div className="pt-12 bg-primary dark:bg-darkBg transition-colors duration-500 ease-in-out h-screen">
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white p-8 rounded-lg shadow-lg flex flex-col items-center">
+          <div className="bg-[#fafafa] p-8 rounded-lg shadow-lg flex flex-col items-center">
             <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden">
               <div className="h-full bg-red-500 animate-slide"></div>
             </div>
-            <p className="mt-4 text-lg font-semibold text-gray-700">Đang xử lý...</p>
+            <p className="mt-4 text-lg font-semibold text-gray-700">
+              Đang xử lý...
+            </p>
           </div>
         </div>
       )}
@@ -248,14 +305,20 @@ const Payment = () => {
         <button
           ref={buttonBack}
           className="cursor-pointer flex items-center gap-2 bg-primaryColor hover:bg-red-600 px-4 py-2 text-lg text-white font-semibold rounded-full"
-          onClick={() => navigate('/cart')}
+          onClick={() => navigate("/cart")}
         >
           <IoIosArrowRoundBack />
           <span>Back</span>
         </button>
       </div>
-      <div ref={container} className="p-4 max-w-4xl mx-auto bg-white shadow-md rounded-2xl">
-        <h1 ref={titleOrder} className="text-2xl font-bold mb-6 text-center text-primaryColor">
+      <div
+        ref={container}
+        className="p-4 max-w-4xl mx-auto bg-white shadow-md rounded-2xl"
+      >
+        <h1
+          ref={titleOrder}
+          className="text-2xl font-bold mb-6 text-center text-primaryColor"
+        >
           Thanh Toán
         </h1>
         <div className="flex justify-between py-3">
@@ -265,7 +328,9 @@ const Payment = () => {
           </div>
           <div className="flex items-center gap-3">
             <p className="font-bold">Ngày đặt</p>
-            <p className="font-bold text-primaryColor">{moment().format('MMM D, YYYY')}</p>
+            <p className="font-bold text-primaryColor">
+              {moment().format("MMM D, YYYY")}
+            </p>
           </div>
         </div>
         {orderData?.items.map((item, index) => (
@@ -276,7 +341,7 @@ const Payment = () => {
           >
             <div className="flex items-center gap-4">
               <img
-                src={item.image || '/placeholder.svg'}
+                src={item.image || "/placeholder.svg"}
                 alt={item.name}
                 className="w-32 h-20 object-cover rounded-md"
               />
@@ -286,20 +351,25 @@ const Payment = () => {
               </div>
             </div>
             <p className="font-bold">
-              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                item.price * item.quantity
-              )}
+              {new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(item.price * item.quantity)}
             </p>
           </div>
         ))}
 
         <div className="flex gap-12">
           <div ref={shipping} className="mt-6 leading-8">
-            <h2 className="text-lg font-bold mb-2">Payment & Shipping details</h2>
+            <h2 className="text-lg font-bold mb-2">
+              Payment & Shipping details
+            </h2>
             <div className="text-gray-600">
               <div className="flex items-start">
                 <p className="w-36 flex-shrink-0">Delivered to:</p>
-                <span className="font-semibold">{orderData?.shippingAddress.name || 'User'}</span>
+                <span className="font-semibold">
+                  {orderData?.shippingAddress.name || "User"}
+                </span>
               </div>
               <div className="flex items-start mt-2">
                 <p className="w-36 flex-shrink-0">Delivery address:</p>
@@ -351,7 +421,7 @@ const Payment = () => {
                 ) : (
                   <div className="flex items-center gap-2">
                     <span className="font-semibold break-words min-w-[360px]">
-                      {fullAddress || 'Please fill your delivery address'}
+                      {fullAddress || "Please fill your delivery address"}
                     </span>
                     <div className="relative group">
                       <Lottie
@@ -368,13 +438,15 @@ const Payment = () => {
               </div>
               <div className="flex items-center my-4">
                 <span className="flex-grow h-[1px] bg-gray-300"></span>
-                <p className="px-8 text-gray-500 text-base">Choose payment method</p>
+                <p className="px-8 text-gray-500 text-base">
+                  Choose payment method
+                </p>
                 <span className="flex-grow h-[1px] bg-gray-300"></span>
               </div>
               <div className="flex flex-col items-center payment-item">
                 <button
                   ref={(el) => paymentButtonsRef.current.push(el)}
-                  onClick={() => handlePayment('momo')}
+                  onClick={() => handlePayment("momo")}
                   className="relative w-[30%] border-red-400 border-2 text-primaryColor rounded-xl p-2 mt-4 flex items-center justify-center gap-4 overflow-hidden group"
                 >
                   <span className="absolute inset-0 bg-red-400 scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-in-out"></span>
@@ -382,7 +454,7 @@ const Payment = () => {
                     className="w-6 h-6 relative z-10"
                     src="/momo-logo.png"
                     alt="MoMo"
-                    onError={(e) => (e.target.style.display = 'none')}
+                    onError={(e) => (e.target.style.display = "none")}
                   />
                   <span className="relative z-10 text-primaryColor group-hover:text-white transition-colors duration-500 ease-in-out">
                     Pay with MoMo
@@ -390,7 +462,7 @@ const Payment = () => {
                 </button>
                 <button
                   ref={(el) => paymentButtonsRef.current.push(el)}
-                  onClick={() => handlePayment('vnpay')}
+                  onClick={() => handlePayment("vnpay")}
                   className="relative w-[30%] border-blue-500 border-2 text-blue-500 rounded-xl p-2 mt-4 flex items-center justify-center gap-4 overflow-hidden group"
                 >
                   <span className="absolute inset-0 bg-blue-500 scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-in-out"></span>
@@ -398,38 +470,60 @@ const Payment = () => {
                     className="w-6 h-6 relative z-10"
                     src="/vnpay-logo.png"
                     alt="VNPay"
-                    onError={(e) => (e.target.style.display = 'none')}
+                    onError={(e) => (e.target.style.display = "none")}
                   />
                   <span className="relative z-10 text-blue-500 group-hover:text-white transition-colors duration-500 ease-in-out">
                     Pay with VNPay
                   </span>
                 </button>
+                <button
+                  ref={(el) => paymentButtonsRef.current.push(el)}
+                  onClick={handleQRPay}
+                  className="relative w-[30%] border-green-500 border-2 text-green-500 rounded-xl p-2 mt-4 flex items-center justify-center gap-4 overflow-hidden group"
+                >
+                  <span className="absolute inset-0 bg-green-500 scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-in-out"></span>
+                  <img
+                    className="w-6 h-6 relative z-10"
+                    src="/vietqr-logo.png"
+                    alt="VietQR"
+                    onError={(e) => (e.target.style.display = "none")}
+                  />
+                  <span className="relative z-10 group-hover:text-white transition-colors duration-500 ease-in-out">
+                    Pay with VietQR
+                  </span>
+                </button>
               </div>
             </div>
           </div>
-          <div ref={payment} className="mt-6 bg-gray-100 p-4 rounded-md min-w-60 h-fit">
+          <div
+            ref={payment}
+            className="mt-6 bg-gray-100 p-4 rounded-md min-w-60 h-fit"
+          >
             <div className="flex justify-between items-center">
               <p>Subtotal</p>
               <p className="font-semibold">
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                  orderData?.totalAmount - orderData?.shippingFee || 0
-                )}
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(orderData?.totalAmount - orderData?.shippingFee || 0)}
               </p>
             </div>
             <div className="flex justify-between items-center mt-2">
               <p>Shipping Fee</p>
               <p className="font-semibold">
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                  orderData?.shippingFee || 0
-                )}
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(orderData?.shippingFee || 0)}
               </p>
             </div>
             <div className="flex justify-between items-center mt-4 border-t border-gray-300 pt-4">
               <p className="font-bold text-lg text-primaryColor">Total</p>
               <p className="font-bold text-lg text-primaryColor">
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                  orderData?.totalAmount || 0
-                )}
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(orderData?.totalAmount || 0)}
               </p>
             </div>
           </div>

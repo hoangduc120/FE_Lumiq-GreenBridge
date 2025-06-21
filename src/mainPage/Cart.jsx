@@ -22,19 +22,16 @@ const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Redux selectors
   const cart = useSelector(selectCartItems);
   const cartLoading = useSelector(selectCartLoading);
   const cartIsFetched = useSelector(selectCartIsFetched);
 
-  // Local state
   const [selectedItems, setSelectedItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [selectedItemName, setSelectedItemName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Refs for GSAP animations
   const buttonBack = useRef(null);
   const containerLeft = useRef(null);
   const container = useRef(null);
@@ -52,10 +49,15 @@ const Cart = () => {
   }, [dispatch]);
 
   const showModal = () => setIsModalOpen(true);
-  const handleOk = () => {
-    removeItem(selectedItemId);
+  const handleOk = async () => {
+    if (selectedItemId) {
+      await removeItem(selectedItemId);
+      setSelectedItemId(null);
+      setSelectedItemName('');
+    }
     setIsModalOpen(false);
   };
+
   const handleCancel = () => setIsModalOpen(false);
 
   useEffect(() => {
@@ -113,34 +115,32 @@ const Cart = () => {
     );
   };
 
-  // Get item ID based on cart type
   const getItemId = (item) => {
     if (user) {
-      return item.productId?._id || item.productId; // Trả về _id nếu productId là object, hoặc productId nếu đã là string
+      return item.productId?._id || item.productId;
     } else {
       return item.id;
     }
   };
 
-  // Get item details based on cart type
   const getItemDetails = (item) => {
     if (user) {
-      // Kiểm tra nếu productId là object hay string
       if (typeof item.productId === "object" && item.productId !== null) {
         return {
           id: item.productId._id,
           name: item.productId.name || "Sản phẩm không tên",
           price: item.productId.price || 0,
           image: item.productId.photos?.[0]?.url || "/placeholder.svg",
+          gardener: item.productId.gardener?.name || "Không xác định",
           quantity: item.quantity || 1,
         };
       } else {
-        // Nếu chỉ có ID mà không có thông tin sản phẩm đầy đủ
         return {
           id: item.productId,
           name: "Sản phẩm không tên",
           price: 0,
           image: "/placeholder.svg",
+          gardener: "Không xác định",
           quantity: item.quantity || 1,
         };
       }
@@ -150,12 +150,12 @@ const Cart = () => {
         name: item.name || "Sản phẩm không tên",
         price: item.price || 0,
         image: item.image || "/placeholder.svg",
+        gardener: "Không xác định",
         quantity: item.quantity || 1,
       };
     }
   };
 
-  // Calculate total price of selected items
   const calculateTotalPrice = useMemo(() => {
     return cart.reduce((total, item) => {
       const itemDetails = getItemDetails(item);
@@ -165,7 +165,6 @@ const Cart = () => {
     }, 0);
   }, [cart, selectedItems, user]);
 
-  // Update quantity
   const updateQuantity = async (itemId, newQuantity) => {
     if (newQuantity <= 0) {
       removeItem(itemId);
@@ -202,7 +201,6 @@ const Cart = () => {
     }
   };
 
-  // Decrease quantity with modal for zero
   const decreaseQuantity = (itemId) => {
     const item = cart.find((item) => getItemId(item) === itemId);
     if (!item) {
@@ -237,7 +235,6 @@ const Cart = () => {
     setLoading(false);
   };
 
-  // Proceed to confirmation - Updated với logic xóa selected items
   const handleProceedToPayment = async () => {
     if (selectedItems.length === 0) {
       toast.error("Vui lòng chọn ít nhất một sản phẩm");
@@ -254,23 +251,19 @@ const Cart = () => {
       const orderData = {
         id: `ORDER_${Date.now()}`,
         items: selectedProducts,
-        totalAmount: calculateTotalPrice + 20000, // Including shipping fee
+        totalAmount: calculateTotalPrice + 20000,
         shippingAddress: {},
         shippingFee: 20000,
         createdAt: new Date().toISOString(),
       };
 
-      // Xóa các selected items khỏi cart trước khi navigate
       if (user && selectedItems.length > 0) {
-        console.log("Đang xóa selected items khỏi cart:", selectedItems);
         await dispatch(removeMultipleFromCart(selectedItems)).unwrap();
         toast.success(`Đã xóa ${selectedItems.length} sản phẩm khỏi giỏ hàng`);
 
-        // Reset selected items sau khi xóa thành công
         setSelectedItems([]);
       }
 
-      // Navigate to payment page
       navigate("/payment", { state: { orderData } });
     } catch (error) {
       console.error("Lỗi khi xử lý thanh toán:", error);
@@ -395,7 +388,7 @@ const Cart = () => {
                   onClick={() => {
                     setSelectedItemId(itemDetails.id);
                     setSelectedItemName(itemDetails.name);
-                    showModal();
+                    showModal(); // 👉 chỉ hiện modal
                   }}
                   disabled={cartLoading}
                 >

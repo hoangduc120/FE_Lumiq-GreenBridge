@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDebounce } from 'use-debounce';
-import ProductFilter from '../components/ProductFilter';
 import Pagination from '../components/pagination';
 import {
   fetchProducts,
@@ -16,7 +15,6 @@ import {
 const ViewAllProduct = () => {
   const dispatch = useDispatch();
   const {
-    products,
     filteredProducts,
     status,
     error,
@@ -106,19 +104,7 @@ const ViewAllProduct = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        <div className="w-full lg:w-1/5 bg-white p-6 rounded-xl shadow-lg">
-          <ProductFilter onFilter={handlePriceFilter} />
-          {(search || sort || priceRange.min > 0 || priceRange.max < 1000000) && (
-            <button
-              onClick={handleResetFilters}
-              className="mt-6 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors"
-            >
-              Xóa bộ lọc
-            </button>
-          )}
-        </div>
-
-        <div className="w-full lg:w-4/5">
+        <div className="w-full lg:w-full">
           {isLoading ? (
             <div className="text-center py-16">
               <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-solid border-green-500 border-r-transparent"></div>
@@ -169,7 +155,7 @@ const ViewAllProduct = () => {
                     <h3 className="text-lg font-semibold text-green-600 truncate">{product.name}</h3>
                     <div className="mt-3 flex items-center justify-between">
                       <p className="text-lg font-medium text-green-600">{product.price.toLocaleString()}đ</p>
-                      <p className="text-sm text-gray-500 truncate">{product.gardener?.name || 'Không xác định'}</p>
+                      <p className="text-sm text-gray-500 truncate">{product.gardener?.email || 'Không xác định'}</p>
                     </div>
                   </div>
                 </Link>
