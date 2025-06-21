@@ -7,11 +7,11 @@ function AboutUs() {
     <div className="min-h-screen p-8 md:p-16 text-white bg-gradient-to-br from-[#85b747] to-[#49b219]">
       <div className="text-center mb-12 px-auto mx-auto">
         <h1 className="text-5xl font-extrabold mb-4 drop-shadow-lg text-[#297F4E]">
-          <span className="text-black">About</span> GreenBridge
+          <span className="text-black">Về</span> GreenBridge
         </h1>
         <p className="text-xl">
-          We're dedicated to connecting people with nature through smart,
-          sustainable gardening solutions.
+          Chúng tôi cam kết kết nối con người với thiên nhiên thông qua các giải
+          pháp làm vườn thông minh và bền vững.
         </p>
       </div>
 
@@ -22,12 +22,12 @@ function AboutUs() {
             <MdSmartToy />
           </div>
           <h2 className="text-2xl mb-4 text-center max-w-70 mx-auto   text-gray-600">
-            SMART PLANT CARE WITH AI
+            CHĂM SÓC CÂY THÔNG MINH VỚI AI
           </h2>
           <p className="text-base leading-relaxed">
-            Let AI be your personal gardening assistant. Our technology helps
-            you identify plants, diagnose issues, and set up smart reminders
-            effortlessly.
+            Để AI trở thành trợ lý cá nhân của bạn. Công nghệ của chúng tôi giúp
+            bạn nhận diện cây, chẩn đoán vấn đề và thiết lập nhắc nhở thông minh
+            một cách dễ dàng.
           </p>
         </div>
 
@@ -37,12 +37,12 @@ function AboutUs() {
             <FaSeedling />
           </div>
           <h2 className="text-2xl mb-4 text-center max-w-70 mx-auto text-gray-600 ">
-            QUALITY PLANTS, EXPERTLY CHOSEN
+            CÂY XANH CHẤT LƯỢNG, LỰA CHỌN TINH TẾ
           </h2>
           <p className="text-base leading-relaxed">
-            We handpick and nurture every plant to ensure it thrives in your
-            space. Whether for home or office, we've got the perfect greenery
-            for you.
+            Chúng tôi lựa chọn và chăm sóc từng cây để đảm bảo chúng phát triển
+            tốt nhất trong không gian của bạn. Dù là nhà ở hay văn phòng,
+            GreenBridge đều có loại cây phù hợp cho bạn.
           </p>
         </div>
 
@@ -52,18 +52,19 @@ function AboutUs() {
             <FaUsers />
           </div>
           <h2 className="text-2xl mb-4 text-center max-w-70 mx-auto text-gray-600">
-            OUR COMMUNITY & PARTNERS
+            CỘNG ĐỒNG & ĐỐI TÁC
           </h2>
           <p className="text-base leading-relaxed">
-            Join a network of plant lovers and experts who share a passion for
-            sustainable, smart gardening. Together, we grow greener!
+            Tham gia mạng lưới những người yêu cây và các chuyên gia cùng chung
+            đam mê làm vườn thông minh, bền vững. Cùng nhau, chúng ta kiến tạo
+            một môi trường xanh hơn!
           </p>
         </div>
       </div>
 
       <div className="text-center mt-16 pt-8 border-t border-white/20">
         <h3 className="mb-4">
-          Join us in our mission to bring more green into the world!
+          Hãy cùng chúng tôi lan tỏa sứ mệnh phủ xanh thế giới!
         </h3>
         <div className="flex justify-center mt-4">
           <FaLeaf className="text-4xl mx-2" />

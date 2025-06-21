@@ -12,6 +12,8 @@ import Lottie from "lottie-react";
 import Edit from "../animations/Edit.json";
 import gsap from "gsap";
 import axiosInstance from "../api/axios";
+import voucherApi from "../api/voucherApi";
+import { Button, List, Modal, Spin } from "antd";
 
 const Payment = () => {
   const location = useLocation();
@@ -49,7 +51,41 @@ const Payment = () => {
   const payment = useRef(null);
   const container = useRef(null);
   const buttonBack = useRef(null);
+  const [voucherModalVisible, setVoucherModalVisible] = useState(false);
+  const [vouchers, setVouchers] = useState([]);
+  const [loadingVouchers, setLoadingVouchers] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
 
+  const openVoucherModal = async () => {
+    setVoucherModalVisible(true);
+    setLoadingVouchers(true);
+    try {
+      const res = await voucherApi.getAvailableVouchers();
+      setVouchers(Array.isArray(res.data.vouchers) ? res.data.vouchers : []);
+      console.log("Available vouchers:", res.data.vouchers);
+    } catch (e) {
+      setVouchers([]);
+      console.log("Error fetching vouchers:", e);
+    }
+    setLoadingVouchers(false);
+  };
+  const handleApplyVoucher = (voucher) => {
+    setSelectedVoucher(voucher);
+    setVoucherModalVisible(false);
+    let discountAmount = 0;
+    if (orderData && voucher) {
+      if (voucher.discountType === "fixed") {
+        discountAmount = voucher.discountValue;
+      } else if (voucher.discountType === "percentage") {
+        discountAmount = (orderData.totalAmount * voucher.discountValue) / 100;
+      }
+      setOrderData({
+        ...orderData,
+        discountAmount: discountAmount,
+        finalAmount: Math.max(orderData.totalAmount - discountAmount, 0),
+      });
+    }
+  };
   useEffect(() => {
     if (location.state && location.state.orderData) {
       setOrderData(location.state.orderData);
@@ -236,39 +272,37 @@ const Payment = () => {
     );
   }
 
-
   const handleQRPay = async () => {
     if (!orderData || !fullAddress) {
       setError("Please provide complete order details and address.");
       return;
     }
-  
+
     setIsLoading(true);
     setError(null);
-  
-    const formattedItems = orderData.items.map(item => ({
-      productId: item.id,        
+
+    const formattedItems = orderData.items.map((item) => ({
+      productId: item.id,
       quantity: item.quantity,
       price: item.price,
     }));
-  
+
     try {
       const orderResponse = await axiosInstance.post(
         `/orders`,
         {
-          orderId: orderData.id, 
+          orderId: orderData.id,
           shippingAddress: { address: fullAddress },
           paymentMethod: "vietqr",
           items: formattedItems,
           totalAmount: orderData.totalAmount,
         }
       );
-  
+
       const { order } = orderResponse.data;
       if (!order) throw new Error("Order creation failed");
-  
+
       navigate(`/payment/vietqr/${order.orderId}`);
-      
     } catch (error) {
       setError(`Error: ${error.response?.data.message || error.message}`);
       console.log("Backend error response:", error.response?.data);
@@ -276,8 +310,7 @@ const Payment = () => {
       setIsLoading(false);
     }
   };
-  
-  
+
   return (
     <div className="pt-12 bg-primary dark:bg-darkBg transition-colors duration-500 ease-in-out h-screen">
       {isLoading && (
@@ -430,6 +463,120 @@ const Payment = () => {
                   </div>
                 )}
               </div>
+              <div className="mb-4 mt-4">
+                <Button
+                  onClick={openVoucherModal}
+                  className="bg-primaryColor text-white hover:bg-red-600 flex items-center gap-2"
+                >
+                  {selectedVoucher ? "Voucher đã chọn" : "Chọn voucher"}
+                </Button>
+                {selectedVoucher && (
+                  <div className="mt-2 p-3 border border-green-500 rounded-md bg-green-50">
+                    <div className="flex justify-between">
+                      <span className="font-semibold text-green-700">
+                        Mã: {selectedVoucher.code}
+                      </span>
+                      <span
+                        className="text-xs cursor-pointer text-red-500"
+                        onClick={() => {
+                          setSelectedVoucher(null);
+                          if (orderData) {
+                            setOrderData({
+                              ...orderData,
+                              discountAmount: 0,
+                              finalAmount: orderData.totalAmount,
+                            });
+                          }
+                        }}
+                      >
+                        Hủy
+                      </span>
+                    </div>
+                    <div className="text-sm text-green-700">
+                      Giảm:{" "}
+                      {selectedVoucher.discountType === "fixed"
+                        ? new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(selectedVoucher.discountValue)
+                        : `${selectedVoucher.discountValue}%`}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <Modal
+                title="Danh sách voucher"
+                open={voucherModalVisible}
+                onCancel={() => setVoucherModalVisible(false)}
+                footer={null}
+                width={600}
+              >
+                {loadingVouchers ? (
+                  <div className="flex justify-center py-8">
+                    <Spin />
+                  </div>
+                ) : (
+                  <div>
+                    {vouchers.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        Bạn không có voucher nào
+                      </div>
+                    ) : (
+                      <List
+                        dataSource={vouchers}
+                        rowKey={(item) => item._id}
+                        renderItem={(item) => (
+                          <List.Item className="border border-dashed border-orange-300 bg-orange-50 rounded-lg mb-2 hover:shadow-md transition-all">
+                            <div className="flex w-full">
+                              <div className="flex-shrink-0 w-1/6 flex items-center justify-center border-r border-dashed border-orange-300">
+                                <div className="text-2xl font-bold text-orange-500">
+                                  #{item.code}
+                                </div>
+                              </div>
+                              <div className="flex-grow px-4 py-2">
+                                <div className="flex justify-between">
+                                  <div className="text-sm text-gray-500">
+                                    HSD:{" "}
+                                    {new Date(item.endDate).toLocaleDateString(
+                                      "vi-VN"
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                  {item.discountType === "fixed"
+                                    ? `Giảm ${new Intl.NumberFormat("vi-VN", {
+                                        style: "currency",
+                                        currency: "VND",
+                                      }).format(item.discountValue)}`
+                                    : `Giảm ${item.discountValue}% tổng đơn hàng`}
+                                </div>
+                                {item.minOrderValue > 0 && (
+                                  <div className="text-xs text-gray-500">
+                                    Áp dụng cho đơn hàng từ{" "}
+                                    {new Intl.NumberFormat("vi-VN", {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }).format(item.minOrderValue)}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-shrink-0 flex items-center pr-2">
+                                <Button
+                                  type="primary"
+                                  className="bg-primaryColor"
+                                  onClick={() => handleApplyVoucher(item)}
+                                >
+                                  Áp dụng
+                                </Button>
+                              </div>
+                            </div>
+                          </List.Item>
+                        )}
+                      />
+                    )}
+                  </div>
+                )}
+              </Modal>
               <div className="flex items-center my-4">
                 <span className="flex-grow h-[1px] bg-gray-300"></span>
                 <p className="px-8 text-gray-500 text-base">
@@ -522,7 +669,9 @@ const Payment = () => {
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(orderData?.totalAmount - orderData?.shippingFee || 0)}
+                }).format(
+                  orderData?.totalAmount - (orderData?.shippingFee || 0)
+                )}
               </p>
             </div>
             <div className="flex justify-between items-center mt-2">
@@ -534,13 +683,27 @@ const Payment = () => {
                 }).format(orderData?.shippingFee || 0)}
               </p>
             </div>
+            {selectedVoucher && (
+              <div className="flex justify-between items-center mt-2 text-green-600">
+                <p>Voucher Discount</p>
+                <p className="font-semibold">
+                  -{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(orderData?.discountAmount || 0)}
+                </p>
+              </div>
+            )}
             <div className="flex justify-between items-center mt-4 border-t border-gray-300 pt-4">
               <p className="font-bold text-lg text-primaryColor">Total</p>
               <p className="font-bold text-lg text-primaryColor">
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(orderData?.totalAmount || 0)}
+                }).format(
+                  orderData?.finalAmount || orderData?.totalAmount || 0
+                )}
               </p>
             </div>
           </div>

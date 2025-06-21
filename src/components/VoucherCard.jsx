@@ -1,5 +1,5 @@
 import React from "react";
-import { Tag, Tooltip } from "antd";
+import { Tag } from "antd";
 import {
   GiftOutlined,
   ThunderboltOutlined,

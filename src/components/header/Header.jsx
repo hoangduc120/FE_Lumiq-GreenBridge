@@ -68,7 +68,7 @@ const Header = () => {
       if (userData) {
         setUser(userData);
       } else {
-        setUser(null); 
+        setUser(null);
       }
     };
 
@@ -101,12 +101,12 @@ const Header = () => {
       <div className="w-full bg-gradient-to-r from-green-800 to-green-500 text-white text-center text-sm py-1 px-4 flex justify-between items-center">
         <div className="w-full text-center">
           {user ? (
-            <span>Welcome back, {user.email || "valued customer"}!</span>
+            <span>Chào mừng trở lại, {user.email || "khách hàng"}!</span>
           ) : (
             <>
-              Sign up and get your first order.{" "}
+              Đăng ký và nhận ưu đãi cho đơn hàng đầu tiên.{" "}
               <Link to="/signup" className="underline font-semibold">
-                Sign Up Now
+                Đăng ký ngay
               </Link>
             </>
           )}
@@ -120,7 +120,10 @@ const Header = () => {
             GreenBridge
           </Link>
 
-          <Link to="/chatbox" className="flex items-center gap-2 relative ml-4">
+          <Link
+            to="/chatbox"
+            className="flex items-center gap-2 relative  "
+          >
             <div className="relative w-9 h-9">
               <svg
                 className="w-9 h-9"
@@ -180,60 +183,60 @@ const Header = () => {
             </div>
 
             {/* Chatbot text */}
-            <span className="text-black font-medium ml-4">Chatbot</span>
+            {/* <span className="text-black font-medium ml-4 "></span> */}
           </Link>
         </div>
 
-        <nav className="hidden md:flex items-center space-x-6">
+        <nav className="hidden md:flex items-center space-x-6 mx-2">
           <Link
             to="/"
-            className={`px-3 py-1 rounded-full font-medium ${
+            className={`px-3 py-1 rounded-full font-medium w-26 ${
               isActive("/")
                 ? "bg-green-500 text-white"
                 : "text-black hover:text-green-600"
             }`}
           >
-            Home
+            Trang chủ
           </Link>
           <Link
             to="/viewall"
-            className={`px-3 py-1 rounded-full font-medium ${
-              isActive("/sell")
+            className={`px-3 py-1 rounded-full font-medium w-26 ${
+              isActive("/viewall")
                 ? "bg-green-500 text-white"
                 : "text-black hover:text-green-600"
             }`}
           >
-            Products
+            Sản phẩm
           </Link>
           <Link
             to="/about"
-            className={`px-3 py-1 rounded-full font-medium ${
+            className={`px-3 py-1 rounded-full font-medium text-center ${
               isActive("/about")
                 ? "bg-green-500 text-white"
                 : "text-black hover:text-green-600"
             }`}
           >
-            About us
+            Về chúng tôi
           </Link>
           {user && user.role === "user" && (
             <Link
               to="/gardener-register"
-              className={`px-3 py-1 rounded-full font-medium ${
+              className={`px-3 py-1 rounded-full font-medium text-center ${
                 isActive("/gardener-register")
                   ? "bg-green-500 text-white"
                   : "text-black hover:text-green-600"
               }`}
             >
-              Gardener Register
+              Đăng ký người làm vườn
             </Link>
           )}
         </nav>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 ml-4">
           <div className="relative">
             <input
               type="text"
-              placeholder="Search for products..."
+              placeholder="Tìm kiếm sản phẩm..."
               className="rounded-full py-2 px-4 bg-[#f7f7f7] border border-gray-200 focus:outline-none w-48 sm:w-64"
             />
             <span className="absolute right-4 top-2.5 text-gray-400">
@@ -265,7 +268,7 @@ const Header = () => {
                       to="/profile"
                       className="block text-base text-gray-700 hover:text-green-600 transition"
                     >
-                      My Profile
+                      Hồ sơ của tôi
                     </Link>
 
                     <hr />
@@ -276,7 +279,7 @@ const Header = () => {
                           to="/admin"
                           className="block text-base text-gray-700 hover:text-green-600 transition"
                         >
-                          Dashboard
+                          Quản trị
                         </Link>
                         <hr />
                       </>
@@ -287,7 +290,7 @@ const Header = () => {
                           to="/gardener/manage-plant"
                           className="block text-base text-gray-700 hover:text-green-600 transition"
                         >
-                          Manage Plant
+                          Quản lý cây trồng
                         </Link>
                         <hr />
                       </>
@@ -298,7 +301,7 @@ const Header = () => {
                       className="flex items-center w-full gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-800 hover:text-green-700 transition cursor-pointer"
                     >
                       <MdLogout className="text-xl" />
-                      <span className="text-base">Sign Out</span>
+                      <span className="text-base">Đăng xuất</span>
                     </button>
                   </div>
                 )}
@@ -306,7 +309,7 @@ const Header = () => {
             ) : (
               <NavLink to="/login">
                 <button className="cursor-pointer px-4 py-2 rounded-md shadow-md bg-white border border-green-400 text-green-600 hover:bg-green-50 transition">
-                  Login
+                  Đăng nhập
                 </button>
               </NavLink>
             )}
