@@ -48,6 +48,16 @@ const packageApi = {
       throw error.response?.data || error;
     }
   },
+  register: async (packageId) => {
+    try {
+      const response = await instance.post(
+        `${"user/subscription-plan"}/${packageId}/register`,
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
 };
 
 export default packageApi;

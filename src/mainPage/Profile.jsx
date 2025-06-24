@@ -17,20 +17,25 @@ import { toast } from "react-toastify";
 
 // Yup schema cho profile
 const profileSchema = yup.object().shape({
-  fullName: yup.string().required("Full name is required"),
-  nickName: yup.string().required("Nick name is required"),
-  email: yup.string().email("Invalid email").required("Email is required"),
-  gender: yup.string().oneOf(["Male", "Female", "Other"], "Invalid gender"),
+  fullName: yup.string().required("Họ tên không được để trống"),
+  nickName: yup.string().required("Biệt danh không được để trống"),
+  email: yup
+    .string()
+    .email("Email không hợp lệ")
+    .required("Email không được để trống"),
+  gender: yup
+    .string()
+    .oneOf(["Male", "Female", "Other"], "Giới tính không hợp lệ"),
 
   phone: yup
     .string()
-    .matches(/^[0-9\-+() ]*$/, "Invalid phone number")
-    .min(6, "Phone must be at least 6 characters")
-    .max(20, "Phone must be at most 20 characters"),
+    .matches(/^[0-9\-+() ]*$/, "Số điện thoại không hợp lệ")
+    .min(6, "Số điện thoại tối thiểu 6 ký tự")
+    .max(20, "Số điện thoại tối đa 20 ký tự"),
   yob: yup
     .date()
-    .typeError("Year of birth is required")
-    .max(new Date(), "Year of birth must be in the past"),
+    .typeError("Năm sinh không được để trống")
+    .max(new Date(), "Năm sinh phải nhỏ hơn hiện tại"),
   address: yup.string(),
 });
 
@@ -142,13 +147,13 @@ function Profile() {
       <Link to="/">
         <span className="border-2 flex gap-1 text-[#2B8B35] p-2 rounded-full w-25 ml-40 mt-5">
           <IoMdReturnLeft />
-          <p>Go back</p>
+          <p>Quay lại</p>
         </span>
       </Link>
 
       <div className="container mx-auto mt-10 max-w-6xl">
         <h2 className="text-[#3E435D] text-3xl font-semibold">
-          Welcome, {user.nickName || user.fullName}
+          Xin chào, {user.nickName || user.fullName}
         </h2>
 
         <div className="flex justify-between items-end">
@@ -160,7 +165,8 @@ function Profile() {
               withCredentials={true}
               beforeUpload={(file) => {
                 const isImage = file.type.startsWith("image/");
-                if (!isImage) message.error("You can only upload image files!");
+                if (!isImage)
+                  message.error("Bạn chỉ có thể tải lên tệp hình ảnh!");
                 return isImage;
               }}
               disabled={avatarUploading}
@@ -174,7 +180,7 @@ function Profile() {
                   }`}
                 />
                 <div className="text-xs text-gray-500 text-center cursor-pointer">
-                  {avatarUploading ? "Uploading..." : "Change"}
+                  {avatarUploading ? "Đang tải lên..." : "Đổi ảnh"}
                 </div>
               </div>
             </Upload>
@@ -187,13 +193,13 @@ function Profile() {
           {editing ? (
             <div className="flex gap-2">
               <Button type="primary" onClick={handleSave}>
-                Save
+                Lưu
               </Button>
-              <Button onClick={handleCancel}>Cancel</Button>
+              <Button onClick={handleCancel}>Hủy</Button>
             </div>
           ) : (
             <Button type="primary" onClick={() => setEditing(true)}>
-              Edit
+              Chỉnh sửa
             </Button>
           )}
         </div>
@@ -202,7 +208,7 @@ function Profile() {
           <div className="flex flex-col gap-6">
             <div>
               <label className="block text-lg mb-1 flex items-center gap-2">
-                <FaUser className="text-[#2B8B35]" /> Full name
+                <FaUser className="text-[#2B8B35]" /> Họ tên
               </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? (
@@ -219,7 +225,7 @@ function Profile() {
             </div>
             <div>
               <label className="block text-lg mb-1 flex items-center gap-2">
-                <FaTransgender className="text-[#2B8B35]" /> Gender
+                <FaTransgender className="text-[#2B8B35]" /> Giới tính
               </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? (
@@ -228,10 +234,10 @@ function Profile() {
                     value={editUser.gender || ""}
                     onChange={handleInputChange("gender")}
                   >
-                    <option value="">Select gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
+                    <option value="">Chọn giới tính</option>
+                    <option value="Male">Nam</option>
+                    <option value="Female">Nữ</option>
+                    <option value="Other">Khác</option>
                   </select>
                 ) : (
                   user.gender
@@ -245,7 +251,7 @@ function Profile() {
             </div>
             <div>
               <label className="block text-lg mb-1 flex items-center gap-2">
-                <FaPhoneAlt className="text-[#2B8B35]" /> Phone
+                <FaPhoneAlt className="text-[#2B8B35]" /> Số điện thoại
               </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? <input {...inputProps("phone")} /> : user.phone}
@@ -261,7 +267,7 @@ function Profile() {
           <div className="flex flex-col gap-6">
             <div>
               <label className="block text-lg mb-1 flex items-center gap-2">
-                <FaUserTag className="text-[#2B8B35]" /> Nick name
+                <FaUserTag className="text-[#2B8B35]" /> Tên sử dụng
               </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? (
@@ -278,7 +284,7 @@ function Profile() {
             </div>
             <div>
               <label className="block text-lg mb-1 flex items-center gap-2">
-                <FaBirthdayCake className="text-[#2B8B35]" /> Year of birth
+                <FaBirthdayCake className="text-[#2B8B35]" /> Năm sinh
               </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? (
@@ -294,7 +300,7 @@ function Profile() {
                     format="DD/MM/YYYY"
                     allowClear={false}
                     disabledDate={(current) => current && current > dayjs()}
-                    placeholder="Select date"
+                    placeholder="Chọn ngày"
                   />
                 ) : user.yob ? (
                   dayjs(user.yob).format("DD/MM/YYYY")
@@ -310,7 +316,7 @@ function Profile() {
             </div>
             <div>
               <label className="block text-lg mb-1 flex items-center gap-2">
-                <FaMapMarkerAlt className="text-[#2B8B35]" /> Address
+                <FaMapMarkerAlt className="text-[#2B8B35]" /> Địa chỉ
               </label>
               <div className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-xl text-[#3E435D] shadow-sm w-full min-h-[56px] flex items-center">
                 {editing ? <input {...inputProps("address")} /> : user.address}
@@ -325,7 +331,7 @@ function Profile() {
         </div>
         <div className="mt-8 flex flex-col gap-4">
           <p className="text-xl flex items-center gap-2">
-            <IoMdMail className="text-[#2B8B35]" /> My email address
+            <IoMdMail className="text-[#2B8B35]" /> Email của tôi
           </p>
           <div className="flex gap-2 items-center">
             <span className="border-1 bg-blue-100 text-[#4182F9] p-2 rounded-full">
@@ -337,11 +343,11 @@ function Profile() {
                   type="email"
                   {...inputProps("email")}
                   className="border rounded-lg px-4 shadow-sm min-h-[56px] border-gray-300 w-full bg-transparent outline-none text-xl text-[#3E435D] placeholder:text-gray-400"
-                  placeholder="Enter your email"
+                  placeholder="Nhập email của bạn"
                 />
               ) : (
                 <div className="bg-white px-4 py-3 rounded-md border shadow-sm text-[#3E435D]">
-                  {editUser.email || "No email"}
+                  {editUser.email || "Chưa có email"}
                 </div>
               )}
             </div>

@@ -301,7 +301,7 @@ const Cart = () => {
   }
 
   return (
-    <div className="pt-12 h-full bg-primary dark:bg-darkBg transition-colors duration-500 ease-in-out">
+    <div className="pt-12 h-lvh bg-primary dark:bg-darkBg transition-colors duration-500 ease-in-out ">
       <div className="p-4">
         <StepProgressBar />
       </div>
